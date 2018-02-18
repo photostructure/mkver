@@ -1,0 +1,40 @@
+{
+  "name": "mkver",
+  "version": "0.0.1",
+  "description": "Node.js access to your app's version and release metadata",
+  "main": "dist/mkver.js",
+  "scripts": {
+    "pretest": "del-cli dist && tsc",
+    "test": "mocha --opts .mocha.opts"
+  },
+  "bin": "bin/mkver",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mceachen/mkver.git"
+  },
+  "keywords": [
+    "Version"
+  ],
+  "author": "Matthew McEachen <matthew-mkver@mceachen.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mceachen/mkver/issues"
+  },
+  "homepage": "https://github.com/mceachen/mkver#readme",
+  "devDependencies": {
+    "@types/chai": "^4.1.2",
+    "@types/fs-extra": "^5.0.0",
+    "@types/mocha": "^2.2.48",
+    "@types/node": "^9.4.6",
+    "@types/tempy": "^0.1.0",
+    "chai": "^4.1.2",
+    "del-cli": "^1.1.0",
+    "mocha": "^5.0.1",
+    "source-map-support": "^0.5.3",
+    "tempy": "^0.2.1",
+    "typescript": "^2.7.2"
+  },
+  "dependencies": {
+    "fs-extra": "^5.0.0"
+  }
+}

@@ -1,0 +1,6 @@
+.node_repl_history
+.npm
+*.log
+dist
+node_modules
+npm-debug.log*

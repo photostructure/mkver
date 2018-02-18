@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+const { argv, cwd } = require("process");
+
+require("../").mkver(cwd(), argv[2] || "Version.ts");
