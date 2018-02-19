@@ -34,13 +34,13 @@ function revParseHead(cwd: string): string {
   }
 }
 
-interface Ingredients {
+interface VersionInfo {
   output: string
   version: string
   gitSha: string
 }
 
-function format(o: Ingredients): string {
+function renderVersionInfo(o: VersionInfo): string {
   const msg = []
   const ts = o.output.endsWith(".ts")
   if (!ts) {
@@ -69,7 +69,7 @@ export function mkver(cwd: string, output: string): void {
       )
     }
     const gitSha = revParseHead(cwd)
-    const msg = format({ output, version, gitSha })
+    const msg = renderVersionInfo({ output, version, gitSha })
     outputFileSync(cwd + "/" + output, msg)
   } catch (err) {
     throw new Error(
