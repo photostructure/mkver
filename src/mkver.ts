@@ -23,40 +23,54 @@ function findPackageVersion(dir: string): string | undefined {
   }
 }
 
+function revParseHead(cwd: string): string {
+  const gitSha = execSync("git rev-parse -q HEAD", { cwd })
+    .toString()
+    .trim()
+  if (gitSha.length < 40) {
+    throw new Error("Unexpected git SHA: " + gitSha)
+  } else {
+    return gitSha
+  }
+}
+
+interface Ingredients {
+  output: string
+  version: string
+  gitSha: string
+}
+
+function format(o: Ingredients): string {
+  const msg = []
+  const ts = o.output.endsWith(".ts")
+  if (!ts) {
+    msg.push(`"use strict";`, `exports.__esModule = true;`)
+  }
+  msg.push(
+    ``,
+    `// ${o.output} built ${new Date().toISOString()}`,
+    ...[
+      `version = "${o.version}"`,
+      `gitSha = "${o.gitSha}"`,
+      `builtAtMs = ${Date.now()}`,
+      `release = "${o.version}+${o.gitSha.substr(0, 7)}"`
+    ].map(ea => (ts ? `export const ${ea};` : `exports.${ea};`)),
+    ``
+  )
+  return msg.join("\n")
+}
+
 export function mkver(cwd: string, output: string): void {
   try {
     const version = findPackageVersion(cwd)
-    if (version == null)
+    if (version == null) {
       throw new Error(
         "No package.json was found in " + cwd + " or parent directories."
       )
-    const gitSha = execSync("git rev-parse -q HEAD", { cwd })
-      .toString()
-      .trim()
-    if (gitSha.length < 40) {
-      throw new Error("Unexpected git SHA: " + gitSha)
     }
-    const msg = []
-    const ts = output.endsWith(".ts")
-    if (!ts) {
-      msg.push(`"use strict";`)
-      msg.push(`exports.__esModule = true;`)
-    }
-    msg.push(
-      ``,
-      `// ${output} built ${new Date().toISOString()}`,
-      ...[
-        `version = "${version}"`,
-        `gitSha = "${gitSha}"`,
-        `builtAtMs = ${Date.now()}`,
-        // https://semver.org/#spec-item-10 : Build metadata MAY be denoted by
-        // appending a plus sign and a series of dot separated identifiers
-        // immediately following the patch or pre-release version.
-        `release = "${version}+${gitSha.substr(0, 7)}"`
-      ].map(ea => (ts ? `export const ${ea};` : `exports.${ea};`)),
-      ``
-    )
-    outputFileSync(cwd + "/" + output, msg.join("\n"))
+    const gitSha = revParseHead(cwd)
+    const msg = format({ output, version, gitSha })
+    outputFileSync(cwd + "/" + output, msg)
   } catch (err) {
     throw new Error(
       argv[1] + ": Failed to produce " + output + ":\n  " + err.message
