@@ -24,7 +24,8 @@ current file. It's called `import`. For old-skool kids, `require`.
 So instead of parsing `package.json` or dropping a `version.json` file into a
 directory, which then needs to be included in your electron manifests and
 battled with on all the different OS fronts, why not make the data be code? I
-read that on HN so it's got to be a great well-researched idea.
+read that on HN so it's got to be a thoughtful, well-researched archetype for
+quality code.
 
 `mkver` should be run automatically as a prerequisite to your build pipeline. It
 drops a `Version.ts` (or `Version.js` if you're one of _those_ people) with your
