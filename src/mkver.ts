@@ -47,8 +47,8 @@ function renderVersionInfo(o: VersionInfo): string {
     msg.push(`"use strict";`, `exports.__esModule = true;`)
   }
   msg.push(
-    ``,
     `// ${o.output} built ${new Date().toISOString()}`,
+    ``,
     ...[
       `version = "${o.version}"`,
       `gitSha = "${o.gitSha}"`,

@@ -15,6 +15,10 @@ This module follows semver.
 * 🐞 Backwards-compatible bug fixes
 * 📦 Minor packaging changes
 
+## v0.0.2
+
+* 📦 Whitespace between comment and exports
+
 ## v0.0.1
 
 * 🎉 First release
