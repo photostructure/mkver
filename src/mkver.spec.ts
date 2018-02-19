@@ -15,6 +15,8 @@ describe("mkver", () => {
     outputJsonSync(d + "/package.json", { version: "1.2.3" })
     execSync("git init", { cwd: d })
     execSync("git add package.json", { cwd: d })
+    execSync("git config user.name anonymous", { cwd: d })
+    execSync("git config user.email anon@example.com", { cwd: d })
     execSync("git commit --no-gpg-sign -m tst", { cwd: d })
     const gitSha = execSync("git rev-parse -q HEAD", { cwd: d })
       .toString()
