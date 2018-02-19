@@ -15,7 +15,7 @@ This module follows semver.
 * 🐞 Backwards-compatible bug fixes
 * 📦 Minor packaging changes
 
-## v0.0.3
+## v0.0.4
 
 * 📦 Publish on linux to chmod bin/mkver
 
