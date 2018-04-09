@@ -21,11 +21,8 @@ In the TypeScript and ES6 Module worlds, there's a super simple,
 compatible-with-minification solution to importing information from outside your
 current file. It's called `import`. For old-skool kids, `require`.
 
-So instead of parsing `package.json` or dropping a `version.json` file into a
-directory, which then needs to be included in your electron manifests and
-battled with on all the different OS fronts, why not make the data be code? I
-read that on HN so it's got to be a thoughtful, well-researched archetype for
-quality code.
+If we can write build-specific information as constants in our codebase,
+consumption becomes trivial.
 
 `mkver` should be run automatically as a prerequisite to your build pipeline. It
 drops a `Version.ts` (or `Version.js` if you're one of _those_ people) with your
@@ -96,7 +93,7 @@ export const gitSha: string = "bfed72637e3bb3b1f5d4c677909fce85e9258b3a"
 // Date.now():
 export const builtAtMs: number = 1519003153587
 
-// Pleasing melange of version and short git SHA:
+// Pleasing mélange of version and short git SHA:
 export const release: string = "1.0.0+cc5f1ac"
 ```
 
