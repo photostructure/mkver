@@ -15,6 +15,11 @@ This module follows semver.
 * 🐞 Backwards-compatible bug fixes
 * 📦 Minor packaging changes
 
+## v1.0.0
+
+* ✨ release values use the git commit date rather than the SHA, so the same
+  version will have monotonically increasing releases for subsequent commits.
+
 ## v0.0.4
 
 * 📦 Publish on linux to chmod bin/mkver

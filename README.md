@@ -90,11 +90,16 @@ export const version: string = "1.0.0"
 // from `git rev-parse HEAD`:
 export const gitSha: string = "bfed72637e3bb3b1f5d4c677909fce85e9258b3a"
 
-// Date.now():
-export const builtAtMs: number = 1519003153587
+// Time of last commit, rendered as a Date:
+export const gitDate: Date = new Date(1519003153587)
 
-// Pleasing mélange of version and short git SHA:
-export const release: string = "1.0.0+cc5f1ac"
+// `release` is a pleasing mélange of version and base-36 of the commit time in
+// unixtime (seconds). We use the commit time rather than the SHA in order to
+// have the same version's different releases be chronologically sortable, even
+// though, according to https://semver.org/#spec-item-10, the "build metadata
+// SHOULD be ignored when determining version precedence."
+
+export const release: string = "1.0.0+p9bifs"
 ```
 
 ### With TypeScript or MJS Modules

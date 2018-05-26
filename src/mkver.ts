@@ -23,7 +23,7 @@ function findPackageVersion(dir: string): string | undefined {
   }
 }
 
-function revParseHead(cwd: string): string {
+function headSha(cwd: string): string {
   const gitSha = execSync("git rev-parse -q HEAD", { cwd })
     .toString()
     .trim()
@@ -34,10 +34,24 @@ function revParseHead(cwd: string): string {
   }
 }
 
+function headUnixtime(cwd: string): number {
+  const unixtimeStr = execSync("git log -1 --pretty=format:%ct", {
+    cwd
+  }).toString()
+  const unixtime = parseInt(unixtimeStr)
+  const date = new Date(unixtime * 1000)
+  if (date > new Date() || date < new Date(2000, 0, 1)) {
+    throw new Error("Unexpected unixtime for commit: " + unixtime)
+  }
+  return unixtime
+}
+
 interface VersionInfo {
   output: string
   version: string
   gitSha: string
+  /** unixtime */
+  gitDate: number
 }
 
 function renderVersionInfo(o: VersionInfo): string {
@@ -52,8 +66,9 @@ function renderVersionInfo(o: VersionInfo): string {
     ...[
       `version = "${o.version}"`,
       `gitSha = "${o.gitSha}"`,
-      `builtAtMs = ${Date.now()}`,
-      `release = "${o.version}+${o.gitSha.substr(0, 7)}"`
+      `gitDate = new Date(${o.gitDate * 1000})`,
+      // Assume there won't be more than one build a minute:
+      `release = "${o.version}+${o.gitDate.toString(36)}"`
     ].map(ea => (ts ? `export const ${ea};` : `exports.${ea};`)),
     ``
   )
@@ -68,8 +83,9 @@ export function mkver(cwd: string, output: string): void {
         "No package.json was found in " + cwd + " or parent directories."
       )
     }
-    const gitSha = revParseHead(cwd)
-    const msg = renderVersionInfo({ output, version, gitSha })
+    const gitSha = headSha(cwd)
+    const gitDate = headUnixtime(cwd)
+    const msg = renderVersionInfo({ output, version, gitSha, gitDate })
     outputFileSync(cwd + "/" + output, msg)
   } catch (err) {
     throw new Error(
