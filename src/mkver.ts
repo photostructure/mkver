@@ -1,7 +1,7 @@
 import { execSync } from "child_process"
-import { readJsonSync, outputFileSync } from "fs-extra"
+import { outputFileSync, readJsonSync } from "fs-extra"
 import { join, resolve } from "path"
-import { argv, cwd, exit } from "process"
+import { argv } from "process"
 
 function notBlank(s: string | undefined): boolean {
   return s != null && String(s).trim().length > 0
@@ -34,7 +34,7 @@ function headSha(cwd: string): string {
   }
 }
 
-function headUnixtime(cwd: string): number {
+function headUnixtime(cwd: string): Date {
   const unixtimeStr = execSync("git log -1 --pretty=format:%ct", {
     cwd
   }).toString()
@@ -43,15 +43,26 @@ function headUnixtime(cwd: string): number {
   if (date > new Date() || date < new Date(2000, 0, 1)) {
     throw new Error("Unexpected unixtime for commit: " + unixtime)
   }
-  return unixtime
+  return date
 }
 
 interface VersionInfo {
   output: string
   version: string
   gitSha: string
-  /** unixtime */
-  gitDate: number
+  gitDate: Date
+}
+
+export function ymdhms(d: Date): string {
+  // NOTE: I thought about only including the hour, or the hour and minute, but
+  // this value is still < Javascript's max integer (2^53), so the whole thing
+  // is fine (and probably a bit more defensible to the Engineers of Tomorrow).
+  // Math.log2(20180919202444) = 44.1
+
+  return d
+    .toISOString()
+    .replace(/[^0-9]/g, "")
+    .substring(0, 14)
 }
 
 function renderVersionInfo(o: VersionInfo): string {
@@ -65,10 +76,9 @@ function renderVersionInfo(o: VersionInfo): string {
     ``,
     ...[
       `version = "${o.version}"`,
+      `release = "${o.version}+${ymdhms(o.gitDate)}"`,
       `gitSha = "${o.gitSha}"`,
-      `gitDate = new Date(${o.gitDate * 1000})`,
-      // Assume there won't be more than one build a minute:
-      `release = "${o.version}+${o.gitDate.toString(36)}"`
+      `gitDate = new Date(${o.gitDate.getTime()})`
     ].map(ea => (ts ? `export const ${ea};` : `exports.${ea};`)),
     ``
   )

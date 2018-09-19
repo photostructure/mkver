@@ -8,27 +8,32 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/6kw1acvoeuw02d4g/branch/master?svg=true)](https://ci.appveyor.com/project/mceachen/mkver/branch/master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/38d56ded57ad1f352ce5/maintainability)](https://codeclimate.com/github/mceachen/mkver/maintainability)
 
-## What? Why?
+## Why
 
-I needed simple, reliable access to my version and build information within my
-node and electron apps. Even if I pushed git SHAs into my `package.json`, after
+I need simple, reliable access to my version and build information from within
+my node and Electron apps. Even if I push git SHAs into my `package.json`, after
 minification, `asar`ification and installation into who-knows-where
 platform-specific directory structures, I didn't want to (continue to) fight
 `__dirname` bugs trying to find where my `package.json` went. I'm not getting
 any younger here, people, I just want something that works. So what works?
 
-In the TypeScript and ES6 Module worlds, there's a super simple,
+In TypeScript and ES6 Module worlds, there's a super simple,
 compatible-with-minification solution to importing information from outside your
-current file. It's called `import`. For old-skool kids, `require`.
+current file, and it's great.
+
+It's called `import`. Or for you old-skool kids, `require`.
 
 If we can write build-specific information as constants in our codebase,
-consumption becomes trivial.
+consumption of this metadata becomes trivial. Add it to your build pipeline, import the thing, and then solve the Big Problems.
 
-`mkver` should be run automatically as a prerequisite to your build pipeline. It
-drops a `Version.ts` (or `Version.js` if you're one of _those_ people) with your
-git SHA and version information exported as constants. For extra credit, it also
-creates a [SemVer-compatible `release` tag](https://semver.org/#spec-item-10)
-that looks like `${version}+${gitSha.substr(0, 7)}`.
+## What
+
+`mkver` drops a `Version.ts` (or `Version.js` if you're one of _those_ people)
+with your git SHA and version information exported as constants. For extra
+credit, it also creates a [SemVer-compatible `release`
+tag](https://semver.org/#spec-item-10) that looks like
+`${version}+${YYYYMMDDhhmmss of gitDate}`, and a `gitDate`, which is a `Date`
+instance of when that last git commit happened.
 
 ## Installation
 
@@ -62,7 +67,7 @@ or
   }
 ```
 
-## What `mkver` does
+## How
 
 `mkver` is a pretty simple three-step, one-trick pony:
 
@@ -79,27 +84,22 @@ or
 
 If anything goes wrong, expect output on `stderr`, and a non-zero exit code.
 
-## Usage
+## Example
 
 Version files will have the following fields exported:
 
 ```ts
-// from package.json:
+/** from your package.json: */
 export const version: string = "1.0.0"
 
-// from `git rev-parse HEAD`:
+/** from `git rev-parse HEAD` */
 export const gitSha: string = "bfed72637e3bb3b1f5d4c677909fce85e9258b3a"
 
-// Time of last commit, rendered as a Date:
+/** Time of last commit, rendered as a Date */
 export const gitDate: Date = new Date(1519003153587)
 
-// `release` is a pleasing mélange of version and base-36 of the commit time in
-// unixtime (seconds). We use the commit time rather than the SHA in order to
-// have the same version's different releases be chronologically sortable, even
-// though, according to https://semver.org/#spec-item-10, the "build metadata
-// SHOULD be ignored when determining version precedence."
-
-export const release: string = "1.0.0+p9bifs"
+/** `version` + gitDate, rendered as YYYYMMDDhhmmss: */
+export const release: string = "1.0.0+20180919202444"
 ```
 
 ### With TypeScript or MJS Modules
