@@ -15,6 +15,10 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.1.2
+
+- 📦 Support for `mkver --help`
+
 ## v1.1.1
 
 - 📦 Upgrade all deps
