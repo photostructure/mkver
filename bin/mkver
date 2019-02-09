@@ -3,7 +3,7 @@
 const { argv, cwd } = require("process");
 
 const usage = `Usage: mkver [FILE] 
-Builds git version source files. 
+Provides Node.js access to your app's version and release metadata. 
 
 With no FILE, default output is "./Version.ts". 
 
