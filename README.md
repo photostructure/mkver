@@ -29,24 +29,24 @@ import the thing, and then solve the Big Problems.
 
 ## What
 
-`mkver` drops a `Version.ts` (by default), or a `Version.js` (if you're writing
-ECMAScript) with your git SHA and version information exported as constants. For
-extra credit, it also creates a [SemVer-compatible `release`
+`mkver` produces a `Version.ts` (by default), or a `version.js` (if you're writing
+ECMAScript) with your git SHA and version information exported as constants.
+
+For extra credit, it also creates a [SemVer-compatible `release`
 tag](https://semver.org/#spec-item-10) that looks like
 `${version}+${YYYYMMDDhhmmss of gitDate}`, and a `gitDate`, which is a `Date`
 instance of when that last git commit happened.
 
 ## Installation
 
-1. `npm i --save-dev mkver` or `yarn add -D mkver`
-2. add a `precompile` or `prebuild` npm script to your `package.json` that runs
-   `mkver`.
-3. I recommend adding the output file to `.gitignore`, but that isn't a
-   requirement.
+### Step 1: add `mkver` to your package.json
 
-If you don't compile your code, add `mkver` as a `pre` script for your test
-script and/or your webpack/gulp/grunt/browserify pipeline in your
-`package.json`.
+`npm i --save-dev mkver` or `yarn add -D mkver`
+
+### Step 2: For TypeScript users
+
+Add a `precompile` or `prebuild` npm script to your `package.json` that runs
+`mkver`:
 
 ```json
   "scripts": {
@@ -57,7 +57,10 @@ script and/or your webpack/gulp/grunt/browserify pipeline in your
   }
 ```
 
-or
+### Step 2: For ECMAScript users
+
+Add `mkver` as a `pre` script for your test script and/or your
+webpack/gulp/grunt/browserify pipeline in your `package.json`.
 
 ```json
   "scripts": {
@@ -68,12 +71,17 @@ or
   }
 ```
 
+### Step 3: Add to .gitignore
+
+I recommend adding your `Version.ts` or `version.js` file to your project's
+`.gitignore`, but that isn't a requirement.
+
 ## How
 
 `mkver` is a pretty simple three-step, one-trick pony:
 
 1. `mkver` first looks for a `package.json` in `.`, then `..`, then `../..`,
-   etc, and extract the `version` value.
+   etc, and extracts the `version` value.
 2. `mkver` then
    [execs](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback)
    `git rev-parse HEAD` to get the last commit SHA. Having `git` available to
@@ -85,7 +93,7 @@ or
 
 If anything goes wrong, expect output on `stderr`, and a non-zero exit code.
 
-## Example
+## Example output
 
 Version files will have the following fields exported:
 
@@ -115,7 +123,7 @@ import { release } from "./Version"
 const { release } = require("./version") // < mind the case matches whatever you give mkver
 ```
 
-Remember to `mkver version.js` in your npm script!
+Remember to `mkver version.js` in your npm script (see the Installation's "Step 2" above!)
 
 ## Changelog
 
