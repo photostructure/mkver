@@ -15,6 +15,11 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.1.1
+
+- 📦 Upgrade all deps
+- 📦 Add node 11 to the build matrix
+
 ## v1.1.0
 
 - ✨ The release suffix is now the YYYYMMDDhhmmss for better human readability.

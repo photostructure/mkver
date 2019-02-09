@@ -24,13 +24,14 @@ current file, and it's great.
 It's called `import`. Or for you old-skool kids, `require`.
 
 If we can write build-specific information as constants in our codebase,
-consumption of this metadata becomes trivial. Add it to your build pipeline, import the thing, and then solve the Big Problems.
+consumption of this metadata becomes trivial. Add it to your build pipeline,
+import the thing, and then solve the Big Problems.
 
 ## What
 
-`mkver` drops a `Version.ts` (or `Version.js` if you're one of _those_ people)
-with your git SHA and version information exported as constants. For extra
-credit, it also creates a [SemVer-compatible `release`
+`mkver` drops a `Version.ts` (by default), or a `Version.js` (if you're writing
+ECMAScript) with your git SHA and version information exported as constants. For
+extra credit, it also creates a [SemVer-compatible `release`
 tag](https://semver.org/#spec-item-10) that looks like
 `${version}+${YYYYMMDDhhmmss of gitDate}`, and a `gitDate`, which is a `Date`
 instance of when that last git commit happened.
