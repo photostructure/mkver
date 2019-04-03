@@ -4,28 +4,29 @@
 [Node.js](https://nodejs.org/)**
 
 [![npm version](https://badge.fury.io/js/mkver.svg)](https://badge.fury.io/js/mkver)
-[![Build Status](https://travis-ci.org/mceachen/mkver.svg?branch=master)](https://travis-ci.org/mceachen/mkver)
-[![Build status](https://ci.appveyor.com/api/projects/status/6kw1acvoeuw02d4g/branch/master?svg=true)](https://ci.appveyor.com/project/mceachen/mkver/branch/master)
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/mceachen/mkver.svg)](https://lgtm.com/projects/g/mceachen/mkver/context:javascript)
+[![Build Status](https://travis-ci.org/photostructure/mkver.svg?branch=master)](https://travis-ci.org/photostructure/mkver)
+[![Build status](https://ci.appveyor.com/api/projects/status/6kw1acvoeuw02d4g/branch/master?svg=true)](https://ci.appveyor.com/project/photostructure/mkver/branch/master)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/photostructure/mkver.svg)](https://lgtm.com/projects/g/photostructure/mkver/context:javascript)
 
 ## Why
 
-I need simple, reliable access to my version and build information from within
-my node and Electron apps. Even if I push git SHAs into my `package.json`, after
+Simple and reliable access to version and build information from within node and
+Electron apps should be easy.
+
+Even if you push git SHAs into your `package.json`, after
 minification, `asar`ification and installation into who-knows-where
-platform-specific directory structures, I didn't want to (continue to) fight
-`__dirname` bugs trying to find where my `package.json` went. I'm not getting
-any younger here, people, I just want something that works. So what works?
+platform-specific directory structures, you'll still be fighting
+`__dirname` bugs trying to find where your `package.json` went.
 
 In TypeScript and ES6 Module worlds, there's a super simple,
-compatible-with-minification solution to importing information from outside your
-current file, and it's great.
+minification-compatible and asar-compatible solution to importing information
+from outside your current file, and it's great.
 
 It's called `import`. Or for you old-skool kids, `require`.
 
-If we can write build-specific information as constants in our codebase,
-consumption of this metadata becomes trivial. Add it to your build pipeline,
-import the thing, and then solve the Big Problems.
+If we can write build-specific information as constants **as code**, living in
+our codebase, consumption of this metadata becomes trivial. Add it to your build
+pipeline, import the thing, and then solve the Big Problems.
 
 ## What
 
