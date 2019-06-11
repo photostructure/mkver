@@ -1,5 +1,5 @@
 import { execSync } from "child_process"
-import { outputFileSync, readJsonSync } from "fs-extra"
+import { readFileSync, writeFileSync } from "fs"
 import { join, resolve } from "path"
 import { argv } from "process"
 
@@ -9,17 +9,21 @@ function notBlank(s: string | undefined): boolean {
 
 function findPackageVersion(dir: string): string | undefined {
   const path = resolve(join(dir, "package.json"))
-  const json = readJsonSync(path, { throws: false })
-  if (json != null) {
-    if (notBlank(json.version)) {
-      return json.version
-    } else {
-      throw new Error("No `version` field was found in " + path)
+  try {
+    const json = JSON.parse(readFileSync(path).toString())
+    if (json != null) {
+      if (notBlank(json.version)) {
+        return json.version
+      } else {
+        throw new Error("No `version` field was found in " + path)
+      }
     }
-  }
-  const parent = resolve(join(dir, "../"))
-  if (resolve(dir) !== parent) {
-    return findPackageVersion(parent)
+    const parent = resolve(join(dir, "../"))
+    if (resolve(dir) !== parent) {
+      return findPackageVersion(parent)
+    }
+  } catch (err) {
+    return
   }
 }
 
@@ -96,7 +100,7 @@ export function mkver(cwd: string, output: string): void {
     const gitSha = headSha(cwd)
     const gitDate = headUnixtime(cwd)
     const msg = renderVersionInfo({ output, version, gitSha, gitDate })
-    outputFileSync(cwd + "/" + output, msg)
+    writeFileSync(cwd + "/" + output, msg)
   } catch (err) {
     throw new Error(
       argv[1] + ": Failed to produce " + output + ":\n  " + err.message

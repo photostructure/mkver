@@ -15,6 +15,11 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.2.0
+
+- ✨ Remove runtime dependency on `fs-extra`
+- 📦 Upgrade all deps
+
 ## v1.1.2
 
 - 📦 Support for `mkver --help`

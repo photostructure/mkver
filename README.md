@@ -79,7 +79,7 @@ I recommend adding your `Version.ts` or `version.js` file to your project's
 
 ## How
 
-`mkver` is a pretty simple three-step, one-trick pony:
+`mkver` is a pretty simple, no-dependencies, three-step, one-trick pony:
 
 1. `mkver` first looks for a `package.json` in `.`, then `..`, then `../..`,
    etc, and extracts the `version` value.
