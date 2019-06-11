@@ -1,6 +1,6 @@
 import { expect } from "chai"
 import { execSync } from "child_process"
-import { outputJsonSync } from "fs-extra"
+import { writeFileSync } from "fs"
 import { directory } from "tempy"
 
 import { mkver, ymdhms } from "./mkver"
@@ -14,7 +14,7 @@ describe("mkver", () => {
     this.retries(2)
     const d = directory()
     const version = "1.2.3"
-    outputJsonSync(d + "/package.json", { version: "1.2.3" })
+    writeFileSync(d + "/package.json", JSON.stringify({ version: "1.2.3" }))
     execSync("git init", { cwd: d })
     execSync("git add package.json", { cwd: d })
     execSync("git config user.name anonymous", { cwd: d })

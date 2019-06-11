@@ -35,6 +35,5 @@
     "tempy": "^0.3.0",
     "typescript": "^3.5.1"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
