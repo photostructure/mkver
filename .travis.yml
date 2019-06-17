@@ -7,5 +7,5 @@ os:
   - linux
   - osx
 osx_image: xcode8
-script: 'yarn test'
+script: "yarn test"
 cache: yarn
