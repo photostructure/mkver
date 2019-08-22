@@ -5,7 +5,7 @@
 
 [![npm version](https://badge.fury.io/js/mkver.svg)](https://badge.fury.io/js/mkver)
 [![Build Status](https://travis-ci.org/photostructure/mkver.svg?branch=master)](https://travis-ci.org/photostructure/mkver)
-[![Build status](https://ci.appveyor.com/api/projects/status/6kw1acvoeuw02d4g/branch/master?svg=true)](https://ci.appveyor.com/project/mceachen/mkver/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/6kw1acvoeuw02d4g/branch/master?svg=true)](https://ci.appveyor.com/project/photostructure/mkver/branch/master)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/photostructure/mkver.svg)](https://lgtm.com/projects/g/photostructure/mkver/context:javascript)
 
 ## Why

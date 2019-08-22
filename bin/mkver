@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { argv, cwd } = require("process");
+const { argv } = require("process");
 
 const usage = `Usage: mkver [FILE] 
 Provides Node.js access to your app's version and release metadata. 
@@ -15,5 +15,5 @@ if (String(argv[2]).startsWith("-")) {
   // Show them usage instructions:
   console.log(usage);
 } else {
-  require("..").mkver(argv[2]);
+  require("../").mkver(argv[2]);
 }

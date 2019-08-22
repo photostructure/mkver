@@ -94,7 +94,7 @@ function renderVersionInfo(o: VersionInfo): string {
   return msg.join("\n") + "\n"
 }
 
-function mkver(output: string = join(cwd(), "Version.ts")): void {
+export function mkver(output: string = join(cwd(), "Version.ts")): void {
   const file = resolve(normalize(output))
   const parsed = parse(file)
   try {
@@ -114,7 +114,12 @@ function mkver(output: string = join(cwd(), "Version.ts")): void {
       gitDate
     })
 
-    mkdirSync(parsed.dir, { recursive: true })
+    try {
+      mkdirSync(parsed.dir, { recursive: true })
+    } catch (err) {
+      if (err.code !== "EEXIST") throw err
+    }
+
     writeFileSync(file, msg)
   } catch (err) {
     throw new Error(

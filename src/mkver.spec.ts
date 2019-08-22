@@ -2,9 +2,12 @@ import { expect } from "chai"
 import { execSync, spawn } from "child_process"
 import { writeFileSync } from "fs"
 import { join } from "path"
+import { version } from "process"
 import { directory } from "tempy"
 
 import { ymdhms } from "./mkver"
+
+const semver = require("semver")
 
 describe("mkver", () => {
   before(function() {
@@ -16,10 +19,12 @@ describe("mkver", () => {
     return assertResult(gitSha, join(dir, "ver.js"))
   })
 
-  it("./testdir/version.js", async () => {
-    const { gitSha, dir } = mkTestRepo()
-    return assertResult(gitSha, join(dir, "testdir", "version.js"))
-  })
+  if (semver.satisfies(process.version, ">=10.12.0")) {
+    it("./testdir/version.js", async () => {
+      const { gitSha, dir } = mkTestRepo()
+      return assertResult(gitSha, join(dir, "testdir", "version.js"))
+    })
+  }
 })
 
 const expVer = `${getRandomInt(15)}.${getRandomInt(15)}.${getRandomInt(15)}`
