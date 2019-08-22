@@ -1,42 +1,80 @@
 import { expect } from "chai"
-import { execSync } from "child_process"
+import { execSync, spawn } from "child_process"
 import { writeFileSync } from "fs"
+import { join } from "path"
 import { directory } from "tempy"
 
-import { mkver, ymdhms } from "./mkver"
-
-require("source-map-support").install()
+import { ymdhms } from "./mkver"
 
 describe("mkver", () => {
-  it("version.js", function() {
-    // If we run the test right at a minute boundary, the timestamp might be
-    // more than 2 digits wrong, so let's retry:
+  before(function() {
     this.retries(2)
-    const d = directory()
-    const version = "1.2.3"
-    writeFileSync(d + "/package.json", JSON.stringify({ version: "1.2.3" }))
-    execSync("git init", { cwd: d })
-    execSync("git add package.json", { cwd: d })
-    execSync("git config user.name anonymous", { cwd: d })
-    execSync("git config user.email anon@example.com", { cwd: d })
-    execSync("git commit --no-gpg-sign -m tst", { cwd: d })
-    const gitSha = execSync("git rev-parse -q HEAD", { cwd: d })
-      .toString()
-      .trim()
-    mkver(d, "version.js")
+  })
 
-    const result = require(d + "/version.js")
-    console.dir({ result })
-    expect(result.gitSha).to.eql(gitSha)
-    expect(result.gitDate).to.be.within(
-      new Date(Date.now() - 2000) as any,
-      new Date() as any
-    )
-    expect(result.version).to.eql("1.2.3")
-    const expectedRelease = trimEnd("1.2.3+" + ymdhms(new Date()), 2)
-    expect(trimEnd(result.release, 2)).to.eql(expectedRelease)
+  it("./ver.js", async () => {
+    const { gitSha, dir } = mkTestRepo()
+    return assertResult(gitSha, join(dir, "ver.js"))
+  })
+
+  it("./testdir/version.js", async () => {
+    const { gitSha, dir } = mkTestRepo()
+    return assertResult(gitSha, join(dir, "testdir", "version.js"))
   })
 })
+
+const expVer = `${getRandomInt(15)}.${getRandomInt(15)}.${getRandomInt(15)}`
+
+const mkTestRepo = lazy(() => {
+  const dir = directory()
+  writeFileSync(dir + "/package.json", JSON.stringify({ version: expVer }))
+  execSync("git init", { cwd: dir })
+  execSync("git add package.json", { cwd: dir })
+  execSync("git config user.name anonymous", { cwd: dir })
+  execSync("git config user.email anon@example.com", { cwd: dir })
+  execSync("git commit --no-gpg-sign -m tst", { cwd: dir })
+  const gitSha = execSync("git rev-parse -q HEAD", { cwd: dir })
+    .toString()
+    .trim()
+  return { gitSha, dir }
+})
+
+async function assertResult(gitSha: string, pathToVersionJs: string) {
+  const cp = spawn("bin/mkver", [pathToVersionJs], { shell: true })
+  await new Promise(res => cp.on("close", res))
+  const result = require(pathToVersionJs)
+  expect(result.gitSha).to.eql(gitSha)
+  expect(result.gitDate).to.be.within(
+    new Date(Date.now() - 2000) as any,
+    new Date() as any
+  )
+  expect(result.version).to.eql(expVer)
+
+  // If we run the test right at a minute boundary, the timestamp might be more
+  // than 2 digits wrong (hence the retries)
+
+  const ymdhm = trimEnd(ymdhms(new Date()), 2)
+  const expectedRelease = `${expVer}+${ymdhm}`
+  const releaseWithoutSeconds = trimEnd(result.release, 2)
+  expect(releaseWithoutSeconds).to.eql(expectedRelease)
+}
+
+function lazy<T>(thunk: () => T): () => T {
+  let invoked = false
+  let result: T
+  return () => {
+    if (!invoked) {
+      invoked = true
+      try {
+        result = thunk()
+      } catch (_) {}
+    }
+    return result
+  }
+}
+
+function getRandomInt(max: number) {
+  return Math.floor(Math.random() * Math.floor(max))
+}
 
 function trimEnd(s: string, chars: number): string {
   return s.substring(0, s.length - chars)

@@ -10,12 +10,10 @@ With no FILE, default output is "./Version.ts".
 See <https://github.com/mceachen/mkver> for more information.
 `;
 
-const arg2 = String(argv[2]);
-
-if (arg2.startsWith("-")) {
-  // Assume people don't want filenames that start with a dash. 
+if (String(argv[2]).startsWith("-")) {
+  // Assume people don't want filenames that start with a dash.
   // Show them usage instructions:
   console.log(usage);
 } else {
-  require("../").mkver(cwd(), argv[2] || "Version.ts");
+  require("..").mkver(argv[2]);
 }

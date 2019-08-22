@@ -15,6 +15,13 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.3.0
+
+- ✨ Support arbitrarily deep subpackages (if running on node 10.13+)
+- 📦 Add better integration tests (by spawning the binfile)
+- 📦 prettier .js
+- 📦 Upgrade all deps
+
 ## v1.2.0
 
 - ✨ Remove runtime dependency on `fs-extra`

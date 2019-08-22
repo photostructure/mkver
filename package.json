@@ -4,7 +4,7 @@
   "description": "Node.js access to your app's version and release metadata",
   "main": "dist/mkver.js",
   "scripts": {
-    "prettier": "prettier --write src/*.ts",
+    "prettier": "prettier --write src/*.ts bin/mkver",
     "pretest": "del-cli dist && tsc",
     "test": "mocha --opts .mocha.opts"
   },
@@ -23,15 +23,15 @@
   },
   "homepage": "https://github.com/photostructure/mkver#readme",
   "devDependencies": {
-    "@types/chai": "^4.1.7",
+    "@types/chai": "^4.2.0",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.6.3",
+    "@types/node": "^12.7.2",
     "@types/tempy": "^0.3.0",
     "chai": "^4.2.0",
     "del-cli": "^2.0.0",
-    "mocha": "^6.1.4",
+    "mocha": "^6.2.0",
     "prettier": "^1.18.2",
-    "source-map-support": "^0.5.12",
+    "source-map-support": "^0.5.13",
     "tempy": "^0.3.0",
     "typescript": "^3.5.3"
   },
