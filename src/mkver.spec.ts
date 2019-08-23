@@ -1,7 +1,6 @@
 import { expect } from "chai"
-import { execSync, spawn } from "child_process"
+import { execSync, fork } from "child_process"
 import { writeFileSync } from "fs"
-import { join } from "path"
 import { version } from "process"
 import { directory } from "tempy"
 
@@ -16,13 +15,13 @@ describe("mkver", () => {
 
   it("./ver.js", async () => {
     const { gitSha, dir } = mkTestRepo()
-    return assertResult(gitSha, join(dir, "ver.js"))
+    return assertResult(gitSha, dir + "/ver.js")
   })
 
   if (semver.satisfies(process.version, ">=10.12.0")) {
     it("./testdir/version.js", async () => {
       const { gitSha, dir } = mkTestRepo()
-      return assertResult(gitSha, join(dir, "testdir", "version.js"))
+      return assertResult(gitSha, dir +  "/testdir/version.js")
     })
   }
 })
@@ -30,13 +29,13 @@ describe("mkver", () => {
 const expVer = `${getRandomInt(15)}.${getRandomInt(15)}.${getRandomInt(15)}`
 
 const mkTestRepo = lazy(() => {
-  const dir = directory()
+  const dir = directory().replace(/\\/g, "/")
   writeFileSync(dir + "/package.json", JSON.stringify({ version: expVer }))
   execSync("git init", { cwd: dir })
   execSync("git add package.json", { cwd: dir })
   execSync("git config user.name anonymous", { cwd: dir })
   execSync("git config user.email anon@example.com", { cwd: dir })
-  execSync("git commit --no-gpg-sign -m tst", { cwd: dir })
+  execSync("git commit --no-gpg-sign -m test-commit", { cwd: dir })
   const gitSha = execSync("git rev-parse -q HEAD", { cwd: dir })
     .toString()
     .trim()
@@ -44,7 +43,7 @@ const mkTestRepo = lazy(() => {
 })
 
 async function assertResult(gitSha: string, pathToVersionJs: string) {
-  const cp = spawn("bin/mkver", [pathToVersionJs], { shell: true })
+  const cp = fork("bin/mkver", [pathToVersionJs])
   await new Promise(res => cp.on("close", res))
   const result = require(pathToVersionJs)
   expect(result.gitSha).to.eql(gitSha)

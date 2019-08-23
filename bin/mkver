@@ -15,5 +15,5 @@ if (String(argv[2]).startsWith("-")) {
   // Show them usage instructions:
   console.log(usage);
 } else {
-  require("../").mkver(argv[2]);
+  require("..").mkver(argv[2]);
 }
