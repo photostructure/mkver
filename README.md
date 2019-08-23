@@ -5,13 +5,13 @@
 
 [![npm version](https://badge.fury.io/js/mkver.svg)](https://badge.fury.io/js/mkver)
 [![Build Status](https://travis-ci.org/photostructure/mkver.svg?branch=master)](https://travis-ci.org/photostructure/mkver)
-[![Build status](https://ci.appveyor.com/api/projects/status/6kw1acvoeuw02d4g/branch/master?svg=true)](https://ci.appveyor.com/project/photostructure/mkver/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/6kw1acvoeuw02d4g/branch/master?svg=true)](https://ci.appveyor.com/project/mceachen/mkver/branch/master)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/photostructure/mkver.svg)](https://lgtm.com/projects/g/photostructure/mkver/context:javascript)
 
-## Why
+## Why?
 
-Simple and reliable access to version and build information from within node and
-Electron apps should be easy.
+Simple, reliable, no-runtime-dependency access to version and build
+information from within node and Electron apps should be easy.
 
 Even if you push git SHAs into your `package.json`, after
 minification, `asar`ification and installation into who-knows-where
@@ -28,7 +28,7 @@ If we can write build-specific information as constants **as code**, living in
 our codebase, consumption of this metadata becomes trivial. Add it to your build
 pipeline, import the thing, and then solve the Big Problems.
 
-## What
+## What?
 
 `mkver` produces a `Version.ts` (by default), or a `version.js` (if you're writing
 ECMAScript) with your git SHA and version information exported as constants.
@@ -46,7 +46,7 @@ instance of when that last git commit happened.
 
 ### Step 2: For TypeScript users
 
-Add a `precompile` or `prebuild` npm script to your `package.json` that runs
+Add a `pre` npm script to your `package.json` that runs
 `mkver`:
 
 ```json
@@ -63,11 +63,11 @@ Add a `precompile` or `prebuild` npm script to your `package.json` that runs
 Add `mkver` as a `pre` script for your test script and/or your
 webpack/gulp/grunt/browserify pipeline in your `package.json`.
 
-```json
+```js
   "scripts": {
     ...
     "prebuild": "mkver ./lib/version.js",
-    "build": "webpack",
+    "build": "webpack", // or whatever you use
     ...
   }
 ```
