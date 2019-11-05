@@ -15,6 +15,10 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.3.1
+
+- 📦 Upgrade all deps
+
 ## v1.3.0
 
 - ✨ Support arbitrarily deep subpackages (if running on node 10.13+)
