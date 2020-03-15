@@ -1,17 +1,12 @@
 import { expect } from "chai"
 import { execSync, fork } from "child_process"
 import { writeFileSync } from "fs"
-import { version } from "process"
+import * as semver from "semver"
 import { directory } from "tempy"
-
 import { ymdhms } from "./mkver"
 
-const semver = require("semver")
-
-describe("mkver", () => {
-  before(function() {
-    this.retries(2)
-  })
+describe("mkver", function() {
+  this.retries(2)
 
   it("./ver.js", async () => {
     const { gitSha, dir } = mkTestRepo()
@@ -21,7 +16,7 @@ describe("mkver", () => {
   if (semver.satisfies(process.version, ">=10.12.0")) {
     it("./testdir/version.js", async () => {
       const { gitSha, dir } = mkTestRepo()
-      return assertResult(gitSha, dir +  "/testdir/version.js")
+      return assertResult(gitSha, dir + "/testdir/version.js")
     })
   }
 })

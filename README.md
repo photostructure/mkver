@@ -3,7 +3,6 @@
 **Easy access to your version and build metadata from within
 [Node.js](https://nodejs.org/)**
 
-[![Become a sponsor](https://img.shields.io/badge/Become%20a-sponsor-orange)](https://github.com/users/mceachen/sponsorship)
 [![npm version](https://img.shields.io/npm/v/mkver.svg)](https://www.npmjs.com/package/mkver)
 [![Build Status](https://travis-ci.org/photostructure/mkver.svg?branch=master)](https://travis-ci.org/photostructure/mkver)
 [![Build status](https://ci.appveyor.com/api/projects/status/6kw1acvoeuw02d4g/branch/master?svg=true)](https://ci.appveyor.com/project/mceachen/mkver/branch/master)

@@ -15,6 +15,10 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.3.2
+
+- 📦 Upgrade all deps, migrate mocha opts
+
 ## v1.3.1
 
 - 📦 Upgrade all deps
