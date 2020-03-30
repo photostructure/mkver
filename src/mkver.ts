@@ -31,9 +31,7 @@ function findPackageVersion(
 }
 
 function headSha(cwd: string): string {
-  const gitSha = execSync("git rev-parse -q HEAD", { cwd })
-    .toString()
-    .trim()
+  const gitSha = execSync("git rev-parse -q HEAD", { cwd }).toString().trim()
   if (gitSha.length < 40) {
     throw new Error("Unexpected git SHA: " + gitSha)
   } else {
@@ -43,7 +41,7 @@ function headSha(cwd: string): string {
 
 function headUnixtime(cwd: string): Date {
   const unixtimeStr = execSync("git log -1 --pretty=format:%ct", {
-    cwd
+    cwd,
   }).toString()
   const unixtime = parseInt(unixtimeStr)
   const date = new Date(unixtime * 1000)
@@ -87,10 +85,12 @@ function renderVersionInfo(o: VersionInfo): string {
     `version = "${o.version}"`,
     `release = "${o.release}"`,
     `gitSha = "${o.gitSha}"`,
-    `gitDate = new Date(${o.gitDate.getTime()})`
+    `gitDate = new Date(${o.gitDate.getTime()})`,
   ]
 
-  msg.push(...fields.map(ea => (ts ? `export const ${ea};` : `exports.${ea}`)))
+  msg.push(
+    ...fields.map((ea) => (ts ? `export const ${ea};` : `exports.${ea}`))
+  )
   return msg.join("\n") + "\n"
 }
 
@@ -111,7 +111,7 @@ export function mkver(output: string = join(cwd(), "Version.ts")): void {
       version: v.version,
       release: `${v.version}+${ymdhms(gitDate)}`,
       gitSha,
-      gitDate
+      gitDate,
     })
 
     try {

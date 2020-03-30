@@ -5,7 +5,7 @@ import * as semver from "semver"
 import { directory } from "tempy"
 import { ymdhms } from "./mkver"
 
-describe("mkver", function() {
+describe("mkver", function () {
   this.retries(2)
 
   it("./ver.js", async () => {
@@ -39,7 +39,7 @@ const mkTestRepo = lazy(() => {
 
 async function assertResult(gitSha: string, pathToVersionJs: string) {
   const cp = fork("bin/mkver", [pathToVersionJs])
-  await new Promise(res => cp.on("close", res))
+  await new Promise((res) => cp.on("close", res))
   const result = require(pathToVersionJs)
   expect(result.gitSha).to.eql(gitSha)
   expect(result.gitDate).to.be.within(
