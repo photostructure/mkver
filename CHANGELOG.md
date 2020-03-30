@@ -15,6 +15,13 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.3.3
+
+- 📦 `Version.js` and `Version.ts` both use semicolons now
+- 📦 version.ts has test coverage
+- 📦 Upgrade all deps
+- 📦 Prettier 2.0.0 diffs
+
 ## v1.3.2
 
 - 📦 Upgrade all deps, migrate mocha opts

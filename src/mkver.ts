@@ -81,16 +81,15 @@ function renderVersionInfo(o: VersionInfo): string {
     )
   }
 
-  const fields = [
+  for (const ea of [
     `version = "${o.version}"`,
     `release = "${o.release}"`,
     `gitSha = "${o.gitSha}"`,
     `gitDate = new Date(${o.gitDate.getTime()})`,
-  ]
+  ]) {
+    msg.push(ts ? `export const ${ea};` : `exports.${ea};`)
+  }
 
-  msg.push(
-    ...fields.map((ea) => (ts ? `export const ${ea};` : `exports.${ea}`))
-  )
   return msg.join("\n") + "\n"
 }
 

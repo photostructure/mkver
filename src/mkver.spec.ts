@@ -1,6 +1,7 @@
 import { expect } from "chai"
-import { execSync, fork } from "child_process"
-import { writeFileSync } from "fs"
+import { ChildProcess, execSync, fork, spawn } from "child_process"
+import { writeFileSync, writeFile } from "fs"
+import { parse } from "path"
 import * as semver from "semver"
 import { directory } from "tempy"
 import { ymdhms } from "./mkver"
@@ -13,6 +14,11 @@ describe("mkver", function () {
     return assertResult(gitSha, dir + "/ver.js")
   })
 
+  it("./ver.ts", async () => {
+    const { gitSha, dir } = mkTestRepo()
+    return assertResult(gitSha, dir + "/ver.ts")
+  })
+
   if (semver.satisfies(process.version, ">=10.12.0")) {
     it("./testdir/version.js", async () => {
       const { gitSha, dir } = mkTestRepo()
@@ -23,7 +29,7 @@ describe("mkver", function () {
 
 const expVer = `${getRandomInt(15)}.${getRandomInt(15)}.${getRandomInt(15)}`
 
-const mkTestRepo = lazy(() => {
+function mkTestRepo() {
   const dir = directory().replace(/\\/g, "/")
   writeFileSync(dir + "/package.json", JSON.stringify({ version: expVer }))
   execSync("git init", { cwd: dir })
@@ -35,15 +41,45 @@ const mkTestRepo = lazy(() => {
     .toString()
     .trim()
   return { gitSha, dir }
-})
+}
 
-async function assertResult(gitSha: string, pathToVersionJs: string) {
-  const cp = fork("bin/mkver", [pathToVersionJs])
-  await new Promise((res) => cp.on("close", res))
-  const result = require(pathToVersionJs)
+function cp2promise(cp: ChildProcess) {
+  return new Promise((res, rej) => {
+    cp.stderr?.on("data", rej)
+    cp.stderr?.on("error", rej)
+    cp.stdout?.on("error", rej)
+    cp.stdout?.on("data", (b) => console.log(b.toString()))
+    cp.on("error", rej)
+    cp.on("exit", (code) => (code == 0 ? res() : rej("bad exit code " + code)))
+  })
+}
+
+async function maybeCompile(pathToVersionFile: string): Promise<string> {
+  if (pathToVersionFile.endsWith(".ts")) {
+    const result = pathToVersionFile.replace(/\.ts$/, ".js")
+    const parsed = parse(result)
+    const rootDir = parsed.dir
+    const destTs = rootDir + "/test.ts"
+    writeFileSync(
+      destTs,
+      [
+        `import { version, release, gitSha, gitDate } from "./${parsed.name}";`,
+        `console.dir({ version, release, gitSha, gitDate });`,
+      ].join("\n")
+    )
+    const args = ["--module", "commonjs", "--rootDir", rootDir, destTs]
+    await cp2promise(spawn("node_modules/.bin/tsc", args))
+    return result
+  } else return pathToVersionFile
+}
+
+async function assertResult(gitSha: string, pathToVersionFile: string) {
+  await cp2promise(fork("bin/mkver", [pathToVersionFile]))
+  const pathToRequire = await maybeCompile(pathToVersionFile)
+  const result = require(pathToRequire)
   expect(result.gitSha).to.eql(gitSha)
   expect(result.gitDate).to.be.within(
-    new Date(Date.now() - 2000) as any,
+    new Date(Date.now() - 5000) as any,
     new Date() as any
   )
   expect(result.version).to.eql(expVer)
