@@ -5,6 +5,7 @@ import { parse } from "path"
 import * as semver from "semver"
 import { directory } from "tempy"
 import { ymdhms } from "./mkver"
+import { platform } from "os"
 
 describe("mkver", function () {
   this.retries(2)
@@ -14,7 +15,8 @@ describe("mkver", function () {
     return assertResult(gitSha, dir + "/ver.js")
   })
 
-  it("./ver.ts", async () => {
+  it("./ver.ts", async function () {
+    if (platform().startsWith("win")) return this.skip()
     const { gitSha, dir } = mkTestRepo()
     return assertResult(gitSha, dir + "/ver.ts")
   })
