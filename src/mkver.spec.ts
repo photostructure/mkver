@@ -79,7 +79,7 @@ async function assertResult(gitSha: string, pathToVersionFile: string) {
   const result = require(pathToRequire)
   expect(result.gitSha).to.eql(gitSha)
   expect(result.gitDate).to.be.within(
-    new Date(Date.now() - 5000) as any,
+    new Date(Date.now() - 15000) as any, // CI can take more than 10s to complete
     new Date() as any
   )
   expect(result.version).to.eql(expVer)
