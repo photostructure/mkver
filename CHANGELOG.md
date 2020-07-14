@@ -15,6 +15,10 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.3.4
+
+- 📦 Upgrade all deps
+
 ## v1.3.3
 
 - 📦 `Version.js` and `Version.ts` both use semicolons now
