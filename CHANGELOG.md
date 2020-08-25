@@ -15,6 +15,10 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.3.5
+
+- 📦 Upgrade all deps
+
 ## v1.3.4
 
 - 📦 Upgrade all deps
