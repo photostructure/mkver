@@ -15,6 +15,10 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.3.6
+
+- 📦 Upgrade all deps (including TypeScript 4.1)
+
 ## v1.3.5
 
 - 📦 Upgrade all deps

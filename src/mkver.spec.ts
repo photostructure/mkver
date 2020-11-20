@@ -46,7 +46,7 @@ function mkTestRepo() {
 }
 
 function cp2promise(cp: ChildProcess) {
-  return new Promise((res, rej) => {
+  return new Promise<void>((res, rej) => {
     cp.stderr?.on("data", rej)
     cp.stderr?.on("error", rej)
     cp.stdout?.on("error", rej)
