@@ -1,7 +1,7 @@
 import { execSync } from "child_process"
 import { mkdirSync, readFileSync, writeFileSync } from "fs"
 import { join, normalize, parse, resolve } from "path"
-import { argv, cwd } from "process"
+import { argv, cwd, exit } from "process"
 
 function notBlank(s: string | undefined): boolean {
   return s != null && String(s).trim().length > 0
@@ -59,22 +59,37 @@ export interface VersionInfo {
   gitDate: Date
 }
 
-export function ymdhms(d: Date): string {
-  // NOTE: I thought about only including the hour, or the hour and minute, but
-  // this value is still < Javascript's max integer (2^53), so the whole thing
-  // is fine (and probably a bit more defensible to the Engineers of Tomorrow).
-  // Math.log2(20180919202444) = 44.1
+// NOT FOR GENERAL USE. Only works for positive values.
+function pad2(i: number) {
+  const s = String(i)
+  return s.length >= 2 ? s : ("0" + s).slice(-2)
+}
 
-  return d
-    .toISOString()
-    .replace(/[^0-9]/g, "")
-    .substring(0, 14)
+/**
+ * Appropriate for filenames: yMMddHHmmss
+ */
+export function fmtYMDHMS(d: Date): string {
+  return (
+    d.getFullYear() +
+    pad2(d.getMonth() + 1) +
+    pad2(d.getDate()) +
+    pad2(d.getHours()) +
+    pad2(d.getMinutes()) +
+    pad2(d.getSeconds())
+  )
 }
 
 function renderVersionInfo(o: VersionInfo): string {
   const msg = []
+  // commonjs?
+  const cjs = o.output.endsWith(".js")
+  const mjs = o.output.endsWith(".mjs")
   const ts = o.output.endsWith(".ts")
-  if (!ts) {
+  if (!cjs && !mjs && !ts) {
+    throw new Error("Unsupported file extension")
+  }
+
+  if (cjs) {
     msg.push(
       `"use strict";`,
       `Object.defineProperty(exports, "__esModule", { value: true });`
@@ -87,7 +102,7 @@ function renderVersionInfo(o: VersionInfo): string {
     `gitSha = "${o.gitSha}"`,
     `gitDate = new Date(${o.gitDate.getTime()})`,
   ]) {
-    msg.push(ts ? `export const ${ea};` : `exports.${ea};`)
+    msg.push(cjs ? `exports.${ea};` : `export const ${ea};`)
   }
 
   return msg.join("\n") + "\n"
@@ -108,7 +123,7 @@ export function mkver(output: string = join(cwd(), "Version.ts")): void {
     const msg = renderVersionInfo({
       output,
       version: v.version,
-      release: `${v.version}+${ymdhms(gitDate)}`,
+      release: `${v.version}+${fmtYMDHMS(gitDate)}`,
       gitSha,
       gitDate,
     })
@@ -121,8 +136,9 @@ export function mkver(output: string = join(cwd(), "Version.ts")): void {
 
     writeFileSync(file, msg)
   } catch (err) {
-    throw new Error(
-      argv[1] + ": Failed to produce " + output + ":\n  " + err.message
+    console.error(
+      argv[1] + ": Failed to produce " + output + ": " + err.message
     )
+    exit(1)
   }
 }

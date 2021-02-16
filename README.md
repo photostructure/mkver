@@ -21,7 +21,8 @@ In TypeScript and ES6 Module worlds, there's a super simple,
 minification-compatible and asar-compatible solution to importing information
 from outside your current file, and it's great.
 
-It's called `import`. Or for you old-skool kids, `require`.
+It's called `import`. Or for you [old-skool
+kids](https://en.wikipedia.org/wiki/CommonJS), `require`.
 
 If we can write build-specific information as constants **as code**, living in
 our codebase, consumption of this metadata becomes trivial. Add it to your build
@@ -29,8 +30,20 @@ pipeline, import the thing, and then solve the Big Problems.
 
 ## What?
 
-`mkver` produces a `Version.ts` (by default), or a `version.js` (if you're writing
-ECMAScript) with your git SHA and version information exported as constants.
+`mkver` produces either:
+
+- a `Version.ts` (the default, for [TypeScript](https://www.typescriptlang.org/)
+  users),
+- a `version.mjs` (for [JavaScript
+  module
+  users](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)),
+  or
+- a `version.js` (if you're using
+  [CommonJS](https://en.wikipedia.org/wiki/CommonJS)) with your git SHA and
+  version information exported as constants.
+  
+The filename can be anything you want, but the file extension must be `.ts`,
+`.mjs`, or `.js`.
 
 For extra credit, it also creates a [SemVer-compatible `release`
 tag](https://semver.org/#spec-item-10) that looks like
@@ -45,7 +58,7 @@ instance of when that last git commit happened.
 
 ### Step 2: For TypeScript users
 
-Add a `pre` npm script to your `package.json` that runs
+Add a `pre...` npm script to your `package.json` that runs
 `mkver`:
 
 ```json
@@ -57,15 +70,15 @@ Add a `pre` npm script to your `package.json` that runs
   }
 ```
 
-### Step 2: For ECMAScript users
+### Step 2: For JavaScript module or CommonJS users
 
-Add `mkver` as a `pre` script for your test script and/or your
-webpack/gulp/grunt/browserify pipeline in your `package.json`.
+Add `mkver` as a `pre...` script for your test script and/or your
+webpack/gulp/grunt/browserify pipeline in your `package.json`:
 
 ```js
   "scripts": {
     ...
-    "prebuild": "mkver ./lib/version.js",
+    "prebuild": "mkver ./lib/version.mjs", // or ./lib/version.js
     "build": "webpack", // or whatever you use
     ...
   }
@@ -73,8 +86,8 @@ webpack/gulp/grunt/browserify pipeline in your `package.json`.
 
 ### Step 3: Add to .gitignore
 
-I recommend adding your `Version.ts` or `version.js` file to your project's
-`.gitignore`, but that isn't a requirement.
+You should add your `Version.ts`, `version.mjs`, or `version.js` file to
+your project's `.gitignore`.
 
 ## How
 
@@ -89,7 +102,8 @@ I recommend adding your `Version.ts` or `version.js` file to your project's
 3. Finally, `mkver` writes the contents to the first argument given to `mkver`,
    which can include a subdirectory. The default output is `./Version.ts`.
    Existing files with that name will be overwritten. `mkver` uses the file
-   extension to determine what format (TypeScript or es6) to render the output.
+   extension to determine what format (TypeScript, module, or es6) to render the
+   output.
 
 If anything goes wrong, expect output on `stderr`, and a non-zero exit code.
 

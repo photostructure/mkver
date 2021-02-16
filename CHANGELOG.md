@@ -15,6 +15,11 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.4.0
+
+- ✨ Support ECMAScript module formats (`.mjs`)
+- 📦 Upgrade all deps
+
 ## v1.3.6
 
 - 📦 Upgrade all deps (including TypeScript 4.1)
