@@ -4,7 +4,7 @@
 [Node.js](https://nodejs.org/)**
 
 [![npm version](https://img.shields.io/npm/v/mkver.svg)](https://www.npmjs.com/package/mkver)
-[![Build status](https://github.com/photostructure/mkver/workflows/Node.js%20CI/badge.svg?branch=master)](https://github.com/photostructure/mkver/actions?query=workflow%3A%22Node.js+CI%22)
+[![Build status](https://github.com/photostructure/mkver/workflows/Node.js%20CI/badge.svg?branch=main)](https://github.com/photostructure/mkver/actions?query=workflow%3A%22Node.js+CI%22)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/photostructure/mkver.svg)](https://lgtm.com/projects/g/photostructure/mkver/context:javascript)
 
 ## Why?
