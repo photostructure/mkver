@@ -81,7 +81,6 @@ export function fmtYMDHMS(d: Date): string {
 
 function renderVersionInfo(o: VersionInfo): string {
   const msg = []
-  // commonjs?
   const cjs = o.output.endsWith(".js")
   const mjs = o.output.endsWith(".mjs")
   const ts = o.output.endsWith(".ts")
@@ -105,6 +104,9 @@ function renderVersionInfo(o: VersionInfo): string {
     msg.push(cjs ? `exports.${ea};` : `export const ${ea};`)
   }
 
+  if (ts || mjs) {
+    msg.push("export default { version, release, gitSha, gitDate };")
+  }
   return msg.join("\n") + "\n"
 }
 

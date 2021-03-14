@@ -15,6 +15,11 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.5.0
+
+- 📦 Add default exports (so `import v from "./Versions"` works, if you want namespaced access).
+- 📦 Upgrade all deps
+
 ## v1.4.0
 
 - ✨ Support ECMAScript module formats (`.mjs`)
