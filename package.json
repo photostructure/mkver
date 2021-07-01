@@ -26,17 +26,17 @@
   },
   "homepage": "https://github.com/photostructure/mkver#readme",
   "devDependencies": {
-    "@types/chai": "^4.2.18",
+    "@types/chai": "^4.2.19",
     "@types/mocha": "^8.2.2",
-    "@types/node": "^15.9.0",
+    "@types/node": "^15.12.5",
     "@types/semver": "^7.3.6",
     "chai": "^4.3.4",
-    "del-cli": "^3.0.1",
-    "mocha": "^8.4.0",
-    "prettier": "^2.3.0",
+    "del-cli": "^4.0.0",
+    "mocha": "^9.0.1",
+    "prettier": "^2.3.2",
     "semver": "^7.3.5",
     "source-map-support": "^0.5.19",
     "tempy": "^1.0.1",
-    "typescript": "^4.3.2"
+    "typescript": "^4.3.5"
   }
 }
