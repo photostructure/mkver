@@ -15,54 +15,58 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v1.6.0
+
+- 📦 Upgrade all dev dependencies
+
 ## v1.5.0
 
 - 📦 Add default exports (so `import v from "./Versions"` works, if you want namespaced access).
-- 📦 Upgrade all deps
+- 📦 Upgrade all dev dependencies
 
 ## v1.4.0
 
 - ✨ Support ECMAScript module formats (`.mjs`)
-- 📦 Upgrade all deps
+- 📦 Upgrade all dev dependencies
 
 ## v1.3.6
 
-- 📦 Upgrade all deps (including TypeScript 4.1)
+- 📦 Upgrade all dev dependencies (including TypeScript 4.1)
 
 ## v1.3.5
 
-- 📦 Upgrade all deps
+- 📦 Upgrade all dev dependencies
 
 ## v1.3.4
 
-- 📦 Upgrade all deps
+- 📦 Upgrade all dev dependencies
 
 ## v1.3.3
 
 - 📦 `Version.js` and `Version.ts` both use semicolons now
 - 📦 version.ts has test coverage
-- 📦 Upgrade all deps
+- 📦 Upgrade all dev dependencies
 - 📦 Prettier 2.0.0 diffs
 
 ## v1.3.2
 
-- 📦 Upgrade all deps, migrate mocha opts
+- 📦 Upgrade all dev dependencies, migrate mocha opts
 
 ## v1.3.1
 
-- 📦 Upgrade all deps
+- 📦 Upgrade all dev dependencies
 
 ## v1.3.0
 
 - ✨ Support arbitrarily deep subpackages (if running on node 10.13+)
 - 📦 Add better integration tests (by spawning the binfile)
 - 📦 prettier .js
-- 📦 Upgrade all deps
+- 📦 Upgrade all dev dependencies
 
 ## v1.2.0
 
 - ✨ Remove runtime dependency on `fs-extra`
-- 📦 Upgrade all deps
+- 📦 Upgrade all dev dependencies
 
 ## v1.1.2
 
@@ -70,7 +74,7 @@ This module follows semver.
 
 ## v1.1.1
 
-- 📦 Upgrade all deps
+- 📦 Upgrade all dev dependencies
 - 📦 Add node 11 to the build matrix
 
 ## v1.1.0

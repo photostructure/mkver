@@ -1,10 +1,9 @@
 import { expect } from "chai"
 import { ChildProcess, execFile, execSync, fork, spawn } from "child_process"
-import { writeFileSync } from "fs"
-import { platform } from "os"
+import { mkdirSync, writeFileSync } from "fs"
+import { platform, tmpdir } from "os"
 import { join, parse } from "path"
 import * as semver from "semver"
-import { directory } from "tempy"
 import { fmtYMDHMS } from "./mkver"
 
 describe("mkver", function () {
@@ -65,7 +64,8 @@ describe("mkver", function () {
 const expVer = `${getRandomInt(15)}.${getRandomInt(15)}.${getRandomInt(15)}`
 
 function mkTestRepo() {
-  const dir = directory().replace(/\\/g, "/")
+  const dir = join(tmpdir(), randomChars())
+  mkdirSync(dir)
   writeFileSync(dir + "/package.json", JSON.stringify({ version: expVer }))
   execSync("git init", { cwd: dir })
   execSync("git add package.json", { cwd: dir })
@@ -180,4 +180,12 @@ function getRandomInt(max: number) {
 
 function trimEnd(s: string, chars: number): string {
   return s.substring(0, s.length - chars)
+}
+
+function randomChars(length = 10) {
+  let s = ""
+  while (s.length < length) {
+    s += Math.random().toString(36).slice(2)
+  }
+  return s.slice(0, length)
 }

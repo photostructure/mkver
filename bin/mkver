@@ -7,10 +7,10 @@ Provides Node.js access to your app's version and release metadata.
 
 With no FILE, default output is "./Version.ts". 
 
-See <https://github.com/mceachen/mkver> for more information.
+See <https://github.com/photostructure/mkver> for more information.
 `;
 
-if (String(argv[2]).startsWith("-")) {
+if (["--help", "-h"].includes(String(argv[2]))) {
   // Assume people don't want filenames that start with a dash.
   // Show them usage instructions:
   console.log(usage);

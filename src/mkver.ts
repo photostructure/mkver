@@ -132,12 +132,12 @@ export function mkver(output: string = join(cwd(), "Version.ts")): void {
 
     try {
       mkdirSync(parsed.dir, { recursive: true })
-    } catch (err) {
+    } catch (err: any) {
       if (err.code !== "EEXIST") throw err
     }
 
     writeFileSync(file, msg)
-  } catch (err) {
+  } catch (err: any) {
     console.error(
       argv[1] + ": Failed to produce " + output + ": " + err.message
     )
