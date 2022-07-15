@@ -6,45 +6,84 @@ import { join, parse } from "path"
 import * as semver from "semver"
 import { fmtYMDHMS } from "./mkver"
 
+class ExpectedVersion {
+  readonly major: number
+  readonly minor: number
+  readonly patch: number
+  readonly prerelease: (string | number)[]
+  readonly version: string
+
+  constructor({
+    major,
+    minor,
+    patch,
+    prerelease,
+    version,
+  }: {
+    major?: number
+    minor?: number
+    patch?: number
+    prerelease?: (string | number)[]
+    version?: string
+  } = {}) {
+    this.major = major ?? getRandomInt(15)
+    this.minor = minor ?? getRandomInt(15)
+    this.patch = patch ?? getRandomInt(15)
+    this.prerelease = prerelease ?? []
+    this.version =
+      [this.major, this.minor, this.patch].join(".") +
+      (this.prerelease.length == 0 ? "" : "-" + this.prerelease.join("."))
+  }
+}
+
 describe("mkver", function () {
   this.retries(2)
   this.slow(1)
 
-  it("./ver.js", async () => {
-    const { gitSha, dir } = mkTestRepo()
-    return assertResult(gitSha, dir + "/ver.js")
-  })
+  for (const exp of [
+    new ExpectedVersion({ prerelease: ["alpha"] }),
+    new ExpectedVersion({ prerelease: ["beta", 3] }),
+    new ExpectedVersion({ prerelease: ["rc", 1] }),
+    new ExpectedVersion(),
+  ]) {
+    describe(exp.version, () => {
+      it("./ver.js", async () => {
+        const { gitSha, dir } = mkTestRepo(exp)
+        return assertResult(gitSha, dir + "/ver.js", exp)
+      })
 
-  it("./version.mjs", async function () {
-    if (!semver.satisfies(process.version, ">=13")) {
-      return this.skip()
-    }
-    const { gitSha, dir } = mkTestRepo()
-    return assertResult(gitSha, dir + "/version.mjs")
-  })
+      it("./version.mjs", async function () {
+        if (!semver.satisfies(process.version, ">=13")) {
+          return this.skip()
+        }
+        const { gitSha, dir } = mkTestRepo(exp)
+        return assertResult(gitSha, dir + "/version.mjs", exp)
+      })
 
-  it("./ver.ts", async function () {
-    if (platform().startsWith("win")) {
-      return this.skip()
-    }
-    const { gitSha, dir } = mkTestRepo()
-    return assertResult(gitSha, dir + "/ver.ts")
-  })
+      it("./ver.ts", async function () {
+        if (platform().startsWith("win")) {
+          return this.skip()
+        }
+        const { gitSha, dir } = mkTestRepo(exp)
+        return assertResult(gitSha, dir + "/ver.ts", exp)
+      })
 
-  it("./testdir/version.js", async () => {
-    const { gitSha, dir } = mkTestRepo()
-    return assertResult(gitSha, dir + "/testdir/version.js")
-  })
+      it("./testdir/version.js", async () => {
+        const { gitSha, dir } = mkTestRepo(exp)
+        return assertResult(gitSha, dir + "/testdir/version.js", exp)
+      })
 
-  it("fails for ./ver.go", async () => {
-    const { gitSha, dir } = mkTestRepo()
-    try {
-      await assertResult(gitSha, dir + "/ver.go")
-      expect.fail("unsupported format should have thrown")
-    } catch (err) {
-      expect(err).to.match(/Unsupported file extension/i)
-    }
-  })
+      it("fails for ./ver.go", async () => {
+        const { gitSha, dir } = mkTestRepo(exp)
+        try {
+          await assertResult(gitSha, dir + "/ver.go", exp)
+          expect.fail("unsupported format should have thrown")
+        } catch (err) {
+          expect(err).to.match(/Unsupported file extension/i)
+        }
+      })
+    })
+  }
 
   describe("fmtYMDHMS", () => {
     for (const iso of [
@@ -61,12 +100,10 @@ describe("mkver", function () {
   })
 })
 
-const expVer = `${getRandomInt(15)}.${getRandomInt(15)}.${getRandomInt(15)}`
-
-function mkTestRepo() {
+function mkTestRepo(exp: ExpectedVersion) {
   const dir = join(tmpdir(), randomChars())
   mkdirSync(dir)
-  writeFileSync(dir + "/package.json", JSON.stringify({ version: expVer }))
+  writeFileSync(dir + "/package.json", JSON.stringify({ version: exp.version }))
   execSync("git init", { cwd: dir })
   execSync("git add package.json", { cwd: dir })
   execSync("git config user.name anonymous", { cwd: dir })
@@ -111,8 +148,8 @@ async function maybeCompile(pathToVersionFile: string): Promise<string> {
     writeFileSync(
       dest,
       [
-        `const { version, release, gitSha, gitDate } = require("./${parsed.name}");`,
-        `console.log(JSON.stringify({ version, release, gitSha, gitDate }));`,
+        `const v = require("./${parsed.name}");`,
+        `console.log(JSON.stringify(v));`,
         "",
       ].join("\n")
     )
@@ -124,8 +161,8 @@ async function maybeCompile(pathToVersionFile: string): Promise<string> {
       dest,
       [
         // HUH: .mjs imports require the file extension (!?)
-        `import { version, release, gitSha, gitDate } from "./${parsed.base}";`,
-        `console.log(JSON.stringify({ version, release, gitSha, gitDate }));`,
+        `import * as v from "./${parsed.base}";`,
+        `console.log(JSON.stringify(v));`,
         "",
       ].join("\n")
     )
@@ -134,8 +171,8 @@ async function maybeCompile(pathToVersionFile: string): Promise<string> {
     writeFileSync(
       dest,
       [
-        `import { version, release, gitSha, gitDate } from "./${parsed.name}";`,
-        `console.log(JSON.stringify({ version, release, gitSha, gitDate }));`,
+        `import * as v from "./${parsed.name}";`,
+        `console.log(JSON.stringify(v));`,
         "",
       ].join("\n")
     )
@@ -145,7 +182,11 @@ async function maybeCompile(pathToVersionFile: string): Promise<string> {
   }
 }
 
-async function assertResult(gitSha: string, pathToVersionFile: string) {
+async function assertResult(
+  gitSha: string,
+  pathToVersionFile: string,
+  exp: ExpectedVersion
+) {
   await _exec(
     fork("bin/mkver", [pathToVersionFile], { detached: false, stdio: "pipe" })
   )
@@ -163,13 +204,17 @@ async function assertResult(gitSha: string, pathToVersionFile: string) {
     new Date() as any
   )
 
-  expect(result.version).to.eql(expVer)
+  expect(result.version).to.eql(exp.version)
+  expect(result.versionMajor).to.eql(exp.major)
+  expect(result.versionMinor).to.eql(exp.minor)
+  expect(result.versionPatch).to.eql(exp.patch)
+  expect(result.versionPrerelease).to.eql(exp.prerelease)
 
   // If we run the test right at a minute boundary, the timestamp might be more
   // than 2 digits wrong (hence the retries)
 
   const ymdhm = trimEnd(fmtYMDHMS(new Date()), 2)
-  const expectedRelease = `${expVer}+${ymdhm}`
+  const expectedRelease = `${exp.version}+${ymdhm}`
   const releaseWithoutSeconds = trimEnd(result.release, 2)
   expect(releaseWithoutSeconds).to.eql(expectedRelease)
 }

@@ -41,7 +41,32 @@ pipeline, import the thing, and then solve the Big Problems.
 - a `version.js` (if you're using
   [CommonJS](https://en.wikipedia.org/wiki/CommonJS)) with your git SHA and
   version information exported as constants.
-  
+
+## Example output
+
+```typescript
+// Version.ts
+
+export const version = "1.2.3-beta.4"
+export const versionMajor = 1
+export const versionMinor = 2
+export const versionPatch = 3
+export const versionPrerelease = ["beta", 4]
+export const release = "1.2.3-beta.4+20220101105815"
+export const gitSha = "dc336bc8e1ea6b4e2f393f98233839b6c23cb812"
+export const gitDate = new Date(1641063495000)
+export default {
+  version,
+  versionMajor,
+  versionMinor,
+  versionPatch,
+  versionPrerelease,
+  release,
+  gitSha,
+  gitDate,
+}
+```
+
 The filename can be anything you want, but the file extension must be `.ts`,
 `.mjs`, or `.js`.
 

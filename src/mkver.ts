@@ -2,9 +2,14 @@ import { execSync } from "child_process"
 import { mkdirSync, readFileSync, writeFileSync } from "fs"
 import { join, normalize, parse, resolve } from "path"
 import { argv, cwd, exit } from "process"
+import * as semver from "semver"
 
 function notBlank(s: string | undefined): boolean {
   return s != null && String(s).trim().length > 0
+}
+
+function map<T, U>(obj: T | undefined | null, f: (t: T) => U): U | undefined {
+  return obj == null ? undefined : f(obj)
 }
 
 function findPackageVersion(
@@ -95,17 +100,33 @@ function renderVersionInfo(o: VersionInfo): string {
     )
   }
 
-  for (const ea of [
-    `version = "${o.version}"`,
-    `release = "${o.release}"`,
-    `gitSha = "${o.gitSha}"`,
-    `gitDate = new Date(${o.gitDate.getTime()})`,
+  const parsed = semver.parse(o.version)
+
+  const fields: string[] = []
+
+  for (const { field, value } of [
+    { field: "version", value: o.version },
+    { field: "versionMajor", value: parsed?.major },
+    { field: "versionMinor", value: parsed?.minor },
+    { field: "versionPatch", value: parsed?.patch },
+    { field: "versionPrerelease", value: parsed?.prerelease },
+    { field: "release", value: o.release },
+    { field: "gitSha", value: o.gitSha },
+    { field: "gitDate", value: o.gitDate },
   ]) {
-    msg.push(cjs ? `exports.${ea};` : `export const ${ea};`)
+    if (value != null) {
+      fields.push(field)
+      const strVal =
+        value instanceof Date
+          ? `new Date(${value.getTime()})`
+          : JSON.stringify(value)
+      const ea = `${field} = ${strVal}`
+      msg.push(cjs ? `exports.${ea};` : `export const ${ea};`)
+    }
   }
 
   if (ts || mjs) {
-    msg.push("export default { version, release, gitSha, gitDate };")
+    msg.push(`export default {${fields.join(",")}};`)
   }
   return msg.join("\n") + "\n"
 }
