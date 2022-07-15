@@ -132,41 +132,23 @@ your project's `.gitignore`.
 
 If anything goes wrong, expect output on `stderr`, and a non-zero exit code.
 
-## Example output
-
-Version files will have the following fields exported:
+### Use with TypeScript or MJS modules
 
 ```ts
-/** from your package.json: */
-export const version: string = "1.0.0"
-
-/** from `git rev-parse HEAD` */
-export const gitSha: string = "bfed72637e3bb3b1f5d4c677909fce85e9258b3a"
-
-/** Time of last commit, rendered as a Date */
-export const gitDate: Date = new Date(1519003153587)
-
-/** `version` + the last git commit timestamp, rendered as YYYYMMDDhhmmss: */
-export const release: string = "1.0.0+20180919202444"
+import { version, release } from "./Version"
 ```
 
-### With TypeScript or MJS Modules
-
-```ts
-import { release } from "./Version"
-```
-
-### With <= ES6 javascript
+### Use with <= ES6 javascript
 
 ```js
-const { release } = require("./version") // < mind the case matches whatever you give mkver
+const { version, release } = require("./version") // < mind the case matches whatever you give mkver
 ```
 
 Remember to `mkver version.js` in your npm script (see the Installation's "Step 2" above!)
 
 ## Bash access to your version info
 
-Need access to your `release` from, say, your deploy script written in bash?
+Need access to your `release` from, say, your deploy script written in `bash`?
 
 ```sh
   release=$(node -e "console.log(require('./path/to/Version.js').release)")
