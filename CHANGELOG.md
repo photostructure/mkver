@@ -15,6 +15,19 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v2.0.0
+
+- ✨ If the version is parseable by
+  [semver](https://github.com/npm/node-semver), `mkver` will export
+  `versionMajor`, `versionMinor`, `versionPatch`, and `versionPrerelease`
+  fields. Examples are now in the README.
+
+- 📦 Improved test coverage with several different version flavors (including prerelease suffixes)
+
+- 📦 Upgrade all dev dependencies.
+
+- 💔/📦 Dropped Node 12 and added Node 18 to the CI matrix (12 is EOL)
+
 ## v1.6.0
 
 - 📦 Upgrade all dev dependencies
