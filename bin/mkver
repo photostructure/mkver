@@ -2,17 +2,14 @@
 
 const { argv } = require("process");
 
-const usage = `Usage: mkver [FILE] 
-Provides Node.js access to your app's version and release metadata. 
-
-With no FILE, default output is "./Version.ts". 
-
-See <https://github.com/photostructure/mkver> for more information.
-`;
-
 if (["--help", "-h"].includes(String(argv[2]))) {
   // Show them usage instructions:
-  console.log(usage);
+  console.log(`Usage: mkver [FILE] 
+Provides Node.js access to your app's version and release metadata.
+
+With no FILE, default output is "./Version.ts".
+
+See <https://github.com/photostructure/mkver> for more information.`);
 } else {
   require("..").mkver(argv[2]);
 }
