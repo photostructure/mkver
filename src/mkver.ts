@@ -8,10 +8,6 @@ function notBlank(s: string | undefined): boolean {
   return s != null && String(s).trim().length > 0
 }
 
-function map<T, U>(obj: T | undefined | null, f: (t: T) => U): U | undefined {
-  return obj == null ? undefined : f(obj)
-}
-
 function findPackageVersion(
   dir: string
 ): undefined | { version: string; dir: string } {
