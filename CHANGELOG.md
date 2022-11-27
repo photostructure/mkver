@@ -15,6 +15,12 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v2.1.0
+
+- 📦 Upgrade all dev dependencies.
+
+- 📦 Remove unused internal `map` function
+
 ## v2.0.0
 
 - ✨ If the version is parseable by
