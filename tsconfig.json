@@ -5,6 +5,8 @@
     "strict": true,
     "rootDir": "src",
     "outDir": "dist",
-    "sourceMap": true
+    "sourceMap": true,
+    "useUnknownInCatchVariables": false,
+    "declaration": true
   }
 }

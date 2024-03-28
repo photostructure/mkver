@@ -15,6 +15,22 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v3.0.0
+
+- 💔 Drop support for obsolete versions of Node.js
+
+- ✨ Support non-CLI programmatic `mkver` calls. Include typings.
+
+- 📦 Merge code from bin/mkver.js into mkver.ts
+
+- 📦 Replace sync calls with async calls
+
+- 📦 Added eslint.
+
+- 📦 Added prettier and import reordering.
+
+- 📦 Upgrade all dev dependencies.
+
 ## v2.1.0
 
 - 📦 Upgrade all dev dependencies.

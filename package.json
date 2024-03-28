@@ -2,15 +2,19 @@
   "name": "mkver",
   "version": "2.1.0",
   "description": "Node.js access to your app's version and release metadata",
-  "main": "dist/mkver.js",
+  "main": "./dist/mkver.js",
+  "types": "./dist/mkver.d.ts",
   "scripts": {
-    "prettier": "prettier --write src/*.ts bin/mkver",
-    "pretest": "rimraf dist && tsc",
+    "prettier": "prettier --write src/*.ts",
+    "lint": "eslint --fix src/*.ts",
+    "premake": "rimraf dist",
+    "make": "tsc && chmod +x dist/mkver.js",
+    "pretest": "yarn make && yarn lint",
     "test": "mocha dist/**/*.spec.js",
     "ci": "yarn install --frozen-lockfile"
   },
   "bin": {
-    "mkver": "bin/mkver"
+    "mkver": "./dist/mkver.js"
   },
   "repository": {
     "type": "git",
@@ -26,18 +30,21 @@
   },
   "homepage": "https://github.com/photostructure/mkver#readme",
   "devDependencies": {
-    "@types/chai": "^4.3.5",
-    "@types/chai-as-promised": "^7.1.5",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "^20.1.7",
-    "@types/semver": "^7.5.0",
-    "chai": "^4.3.7",
+    "@types/chai": "^4.3.14",
+    "@types/chai-as-promised": "^7.1.8",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.30",
+    "@types/semver": "^7.5.8",
+    "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
-    "mocha": "^10.2.0",
-    "prettier": "^2.8.8",
-    "rimraf": "^5.0.1",
-    "semver": "^7.5.1",
+    "eslint": "^8.57.0",
+    "mocha": "^10.4.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-organize-imports": "^3.2.4",
+    "rimraf": "^5.0.5",
+    "semver": "^7.6.0",
     "source-map-support": "^0.5.21",
-    "typescript": "^5.0.4"
+    "typescript": "^5.4.3",
+    "typescript-eslint": "^7.4.0"
   }
 }
