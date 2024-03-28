@@ -11,7 +11,8 @@
     "make": "tsc && chmod +x dist/mkver.js",
     "pretest": "yarn make && yarn lint",
     "test": "mocha dist/**/*.spec.js",
-    "ci": "yarn install --frozen-lockfile"
+    "ci": "yarn install --frozen-lockfile",
+    "release": "release-it"
   },
   "bin": {
     "mkver": "./dist/mkver.js"
@@ -46,6 +47,7 @@
     "mocha": "^10.4.0",
     "prettier": "^3.2.5",
     "prettier-plugin-organize-imports": "^3.2.4",
+    "release-it": "^17.1.1",
     "rimraf": "^5.0.5",
     "semver": "^7.6.0",
     "source-map-support": "^0.5.21",
