@@ -43,7 +43,6 @@ async function headSha(cwd: string): Promise<string> {
   ).stdout
     .toString()
     .trim();
-  console.log("headSha", { gitSha });
   if (gitSha.length < 40) {
     throw new Error("Unexpected git SHA: " + gitSha);
   } else {
