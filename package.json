@@ -29,6 +29,11 @@
     "url": "https://github.com/photostructure/mkver/issues"
   },
   "homepage": "https://github.com/photostructure/mkver#readme",
+  "release-it": {
+    "hooks": {
+      "before:init": "yarn test"
+    }
+  },
   "devDependencies": {
     "@types/chai": "^4.3.14",
     "@types/chai-as-promised": "^7.1.8",
