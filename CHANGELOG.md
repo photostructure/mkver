@@ -15,6 +15,14 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v3.0.2
+
+- 🐞 Remove console.log with `headSha` metadata
+
+## v3.0.1
+
+- 🐞 Fix `mkver` shebang
+
 ## v3.0.0
 
 - 💔 Drop support for obsolete versions of Node.js
