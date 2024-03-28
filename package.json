@@ -33,6 +33,14 @@
   "release-it": {
     "hooks": {
       "before:init": "yarn test"
+    },
+    "src": {
+      "tagName": "v%s",
+      "commitArgs": "-S",
+      "tagArgs": "-S"
+    },
+    "github": {
+      "release": true
     }
   },
   "devDependencies": {
