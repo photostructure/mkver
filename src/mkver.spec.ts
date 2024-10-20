@@ -136,14 +136,15 @@ function _exec(cp: ChildProcess): Promise<string> {
       // console.error("cp.on(error)", ea)
       rej(ea);
     });
-    cp.on("close", (code) => {
-      // console.error("cp.on(close)", { code })
-      code == 0 ? res(buf.join("")) : rej("bad exit code " + code);
-    });
-    cp.on("exit", (code) => {
-      // console.error("cp.on(exit)", { code })
-      code == 0 ? res(buf.join("")) : rej("bad exit code " + code);
-    });
+    const callback = (code: number | null) => {
+      if (code == 0) {
+        res(buf.join(""));
+      } else {
+        rej("bad exit code " + code);
+      }
+    };
+    cp.on("close", callback);
+    cp.on("exit", callback);
   });
 }
 
