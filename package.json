@@ -44,7 +44,7 @@
     }
   },
   "devDependencies": {
-    "@types/chai": "^4.3.14",
+    "@types/chai": "^5.2.0",
     "@types/chai-as-promised": "^8.0.1",
     "@types/mocha": "^10.0.9",
     "@types/node": "^22.7.7",
