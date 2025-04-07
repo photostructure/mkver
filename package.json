@@ -51,7 +51,7 @@
     "@types/semver": "^7.5.8",
     "chai": "^4.3.10",
     "chai-as-promised": "^8.0.0",
-    "eslint": "^8.57.0",
+    "eslint": "^9.24.0",
     "mocha": "^10.7.3",
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^4.1.0",
