@@ -1,5 +1,3 @@
-# mkver
-
 **Easy access to your version and build metadata from within
 [Node.js](https://nodejs.org/)**
 
