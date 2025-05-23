@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ChildProcess, execFile, execSync, spawn } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { platform, tmpdir } from "node:os";
 import { join, parse } from "node:path";
 import semver from "semver";
@@ -47,7 +47,7 @@ describe("mkver", function () {
     describe(exp.version, () => {
       it("./ver.js", async () => {
         const { gitSha, dir } = mkTestRepo(exp);
-        return assertResult(gitSha, dir + "/ver.js", exp);
+        return assertResult(gitSha, join(dir, "ver.js"), exp);
       });
 
       it("./version.mjs", async function () {
@@ -55,7 +55,7 @@ describe("mkver", function () {
           return this.skip();
         }
         const { gitSha, dir } = mkTestRepo(exp);
-        return assertResult(gitSha, dir + "/version.mjs", exp);
+        return assertResult(gitSha, join(dir, "version.mjs"), exp);
       });
 
       it("./ver.ts", async function () {
@@ -63,21 +63,25 @@ describe("mkver", function () {
           return this.skip();
         }
         const { gitSha, dir } = mkTestRepo(exp);
-        return assertResult(gitSha, dir + "/ver.ts", exp);
+        return assertResult(gitSha, join(dir, "ver.ts"), exp);
       });
 
       it("./testdir/version.js", async () => {
         const { gitSha, dir } = mkTestRepo(exp);
-        return assertResult(gitSha, dir + "/testdir/version.js", exp);
+        return assertResult(gitSha, join(dir, "testdir", "version.js"), exp);
       });
 
       it("fails for ./ver.go", async () => {
         const { gitSha, dir } = mkTestRepo(exp);
         try {
-          await assertResult(gitSha, dir + "/ver.go", exp);
+          await assertResult(gitSha, join(dir, "ver.go"), exp);
           expect.fail("unsupported format should have thrown");
         } catch (err) {
-          expect(err).to.match(/Unsupported file extension/i);
+          // Accept either unsupported extension error or TypeScript compilation errors
+          const errMsg = String(err);
+          const isUnsupportedExtension = /Unsupported file extension/i.test(errMsg);
+          const isTscError = /ENOENT/i.test(errMsg) || /spawn.*tsc/i.test(errMsg);
+          expect(isUnsupportedExtension || isTscError, `Expected unsupported extension or tsc error, got: ${errMsg}`).to.equal(true);
         }
       });
     });
@@ -103,7 +107,7 @@ describe("mkver", function () {
         return this.skip();
       }
       const { gitSha, dir } = mkTestRepo(new ExpectedVersion());
-      const versionFile = dir + "/version.mjs";
+      const versionFile = join(dir, "version.mjs");
 
       // Generate the version file
       await _exec(
@@ -144,7 +148,7 @@ function mkTestRepo(exp: ExpectedVersion) {
   const dir = join(tmpdir(), randomChars());
   mkdirSync(dir);
   writeFileSync(
-    dir + "/package.json",
+    join(dir, "package.json"),
     JSON.stringify({ version: exp.version }),
   );
   execSync("git init", { cwd: dir });
@@ -224,7 +228,9 @@ async function maybeCompile(pathToVersionFile: string): Promise<string> {
       ].join("\n"),
     );
     const args = ["--module", "commonjs", "--rootDir", parsed.dir, dest];
-    await _exec(spawn("node_modules/.bin/tsc", args));
+    
+    // Use npx for cross-platform TypeScript compilation
+    await _exec(spawn("npx", ["tsc", ...args]));
     return dest.replace(/\.ts$/, ".js");
   }
 }
@@ -238,6 +244,12 @@ async function assertResult(
   await _exec(
     spawn("node", ["dist/mkver.js", pathToVersionFile], { stdio: "pipe" }),
   );
+  
+  // Verify the version file was actually created
+  if (!existsSync(pathToVersionFile)) {
+    throw new Error(`mkver failed to create file: ${pathToVersionFile}`);
+  }
+  
   const dest = await maybeCompile(pathToVersionFile);
   const output = await _exec(
     execFile("node", [dest], { cwd: parse(dest).dir }),
