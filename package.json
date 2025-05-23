@@ -11,7 +11,7 @@
     "make": "tsc && chmod +x dist/mkver.js",
     "pretest": "npm run make && npm run lint",
     "test": "mocha dist/**/*.spec.js",
-    "docs:build": "typedoc --out docs src/mkver.ts --readme README.md --includeVersion",
+    "docs:build": "typedoc --out docs src/mkver.ts --readme README.md",
     "release": "release-it"
   },
   "bin": {
