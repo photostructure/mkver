@@ -15,7 +15,7 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
-## v4.0.0
+## v4.0.1
 
 - 💔 Drop Node.js v18 and v21 support
 
