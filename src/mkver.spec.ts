@@ -138,6 +138,9 @@ describe("mkver", function () {
         expect.fail("Import without extension should have failed");
       } catch (err) {
         // ESM imports without extensions should fail - just verify we got an error
+        if (typeof err === 'string') {
+          throw new Error(err);
+        }
         const errStr = String(err);
         expect(errStr).to.be.a('string');
         expect(errStr.length).to.be.greaterThan(0);
@@ -168,23 +171,23 @@ function mkTestRepo(exp: ExpectedVersion) {
 
 function _exec(cp: ChildProcess): Promise<string> {
   const buf: (string | Buffer)[] = [];
+  const errBuf: (string | Buffer)[] = [];
   return new Promise<string>((res, rej) => {
     cp.stderr?.on("data", (ea) => {
-      // console.error("cp.stderr.on(data)", ea)
-      rej(String(ea));
+      errBuf.push(ea);
     });
     cp.stderr?.on("error", rej);
     cp.stdout?.on("error", rej);
     cp.stdout?.on("data", (ea) => buf.push(ea));
     cp.on("error", (ea) => {
-      // console.error("cp.on(error)", ea)
       rej(ea);
     });
     const callback = (code: number | null) => {
       if (code == 0) {
         res(buf.join(""));
       } else {
-        rej("bad exit code " + code);
+        const stderr = errBuf.join("");
+        rej(new Error(`Process failed with exit code ${code}${stderr ? `: ${stderr}` : ""}`));
       }
     };
     cp.on("close", callback);
