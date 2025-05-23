@@ -39,8 +39,9 @@ pipeline, import the thing, and then solve the Big Problems.
   users](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)),
   or
 - a `version.js` (if you're using
-  [CommonJS](https://en.wikipedia.org/wiki/CommonJS)) with your git SHA and
-  version information exported as constants.
+  [CommonJS](https://en.wikipedia.org/wiki/CommonJS)), or
+- a `version.cjs` (for explicit [CommonJS](https://en.wikipedia.org/wiki/CommonJS) 
+  in ESM projects) with your git SHA and version information exported as constants.
 
 ## Example output
 
@@ -68,7 +69,7 @@ export default {
 ```
 
 The filename can be anything you want, but the file extension must be `.ts`,
-`.mjs`, or `.js`.
+`.mjs`, `.js`, or `.cjs`.
 
 For extra credit, it also creates a [SemVer-compatible `release`
 tag](https://semver.org/#spec-item-10) that looks like
@@ -79,7 +80,7 @@ instance of when that last git commit happened.
 
 ### Step 1: add `mkver` to your package.json
 
-`npm i --save-dev mkver` or `yarn add -D mkver`
+`npm i --save-dev mkver`
 
 ### Step 2: For TypeScript users
 
@@ -103,7 +104,7 @@ webpack/gulp/grunt/browserify pipeline in your `package.json`:
 ```js
   "scripts": {
     ...
-    "prebuild": "mkver ./lib/version.mjs", // or ./lib/version.js
+    "prebuild": "mkver ./lib/version.mjs", // or ./lib/version.js or ./lib/version.cjs
     "build": "webpack", // or whatever you use
     ...
   }
@@ -111,7 +112,7 @@ webpack/gulp/grunt/browserify pipeline in your `package.json`:
 
 ### Step 3: Add to .gitignore
 
-You should add your `Version.ts`, `version.mjs`, or `version.js` file to
+You should add your `Version.ts`, `version.mjs`, `version.js`, or `version.cjs` file to
 your project's `.gitignore`.
 
 ## How
@@ -127,7 +128,7 @@ your project's `.gitignore`.
 3. Finally, `mkver` writes the contents to the first argument given to `mkver`,
    which can include a subdirectory. The default output is `./Version.ts`.
    Existing files with that name will be overwritten. `mkver` uses the file
-   extension to determine what format (TypeScript, module, or es6) to render the
+   extension to determine what format (TypeScript, ESM, or CommonJS) to render the
    output.
 
 If anything goes wrong, expect output on `stderr`, and a non-zero exit code.
@@ -138,20 +139,24 @@ If anything goes wrong, expect output on `stderr`, and a non-zero exit code.
 import { version, release } from "./Version"
 ```
 
-### Use with <= ES6 javascript
+### Use with CommonJS
 
 ```js
 const { version, release } = require("./version") // < mind the case matches whatever you give mkver
 ```
 
-Remember to `mkver version.js` in your npm script (see the Installation's "Step 2" above!)
+Remember to `mkver version.js` (or `version.cjs`) in your npm script (see the Installation's "Step 2" above!)
 
 ## Bash access to your version info
 
 Need access to your `release` from, say, your deploy script written in `bash`?
 
 ```sh
-  release=$(node -e "console.log(require('./path/to/Version.js').release)")
+  # For CommonJS (.js or .cjs files):
+  release=$(node -e "console.log(require('./path/to/version.js').release)")
+  
+  # For ESM (.mjs or .ts files):
+  release=$(node -e "import('./path/to/version.mjs').then(m => console.log(m.release))")
 ```
 
 ## Changelog

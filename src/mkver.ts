@@ -14,6 +14,15 @@ function notBlank(s: string | undefined): boolean {
   return s != null && String(s).trim().length > 0;
 }
 
+/**
+ * Recursively searches for package.json starting from the given directory,
+ * moving up the directory tree until found or reaching the filesystem root.
+ * 
+ * @param dir - The directory to start searching from
+ * @returns Promise resolving to version and directory info, or undefined if not found
+ * @throws Error if package.json is found but has no version field
+ */
+
 async function findPackageVersion(
   dir: string,
 ): Promise<undefined | { version: string; dir: string }> {
@@ -24,7 +33,7 @@ async function findPackageVersion(
       if (notBlank(json.version)) {
         return { version: json.version, dir };
       } else {
-        throw new Error("No `version` field was found in " + path);
+        throw new Error("No version field found in " + path);
       }
     }
   } catch (err) {
@@ -37,19 +46,33 @@ async function findPackageVersion(
   }
 }
 
+/**
+ * Retrieves the current git commit SHA from the specified directory.
+ * 
+ * @param cwd - The working directory to run git command in
+ * @returns Promise resolving to the 40-character commit SHA
+ * @throws Error if git command fails or returns invalid SHA
+ */
 async function headSha(cwd: string): Promise<string> {
   const gitSha = (
     await execFileP("git", ["rev-parse", "-q", "HEAD"], { cwd })
   ).stdout
     .toString()
     .trim();
-  if (gitSha.length < 40) {
-    throw new Error("Unexpected git SHA: " + gitSha);
+  if (gitSha.length !== 40 || !/^[a-f0-9]{40}$/i.test(gitSha)) {
+    throw new Error("Invalid git SHA: " + gitSha);
   } else {
     return gitSha;
   }
 }
 
+/**
+ * Retrieves the commit date of the current git HEAD as a Date object.
+ * 
+ * @param cwd - The working directory to run git command in
+ * @returns Promise resolving to the Date of the commit
+ * @throws Error if git command fails or returns invalid timestamp
+ */
 async function headUnixtime(cwd: string): Promise<Date> {
   const unixtimeStr = (
     await execFileP("git", ["log", "-1", "--pretty=format:%ct"], {
@@ -59,7 +82,7 @@ async function headUnixtime(cwd: string): Promise<Date> {
   const unixtime = parseInt(unixtimeStr);
   const date = new Date(unixtime * 1000);
   if (date > new Date() || date < new Date(2000, 0, 1)) {
-    throw new Error("Unexpected unixtime for commit: " + unixtime);
+    throw new Error("Invalid commit timestamp: " + unixtime);
   }
   return date;
 }
@@ -92,6 +115,14 @@ export function fmtYMDHMS(d: Date): string {
   );
 }
 
+/**
+ * Renders version information into the appropriate format based on file extension.
+ * Supports TypeScript (.ts), ES modules (.mjs), and CommonJS (.js/.cjs) formats.
+ * 
+ * @param o - The version information object to render
+ * @returns The formatted code as a string
+ * @throws Error if the file extension is not supported
+ */
 function renderVersionInfo(o: VersionInfo): string {
   const msg = [];
   const ext = o.path.ext.toLowerCase();
@@ -101,7 +132,7 @@ function renderVersionInfo(o: VersionInfo): string {
   const ts = ext === ".ts";
   if (!cjs && !mjs && !ts) {
     throw new Error(
-      `Unsupported file extension (expected output, ${JSON.stringify(o.path)}, to end in .ts, .js, .mjs, or .cjs)`,
+      `Unsupported file extension: expected ${JSON.stringify(o.path)} to end in .ts, .js, .mjs, or .cjs`,
     );
   }
 
@@ -160,7 +191,7 @@ export async function mkver(output?: string): Promise<VersionInfo> {
   const v = await findPackageVersion(parsed.dir);
   if (v == null) {
     throw new Error(
-      "No package.json was found in " + parsed.dir + " or parent directories.",
+      "No package.json found in " + parsed.dir + " or parent directories",
     );
   }
   const gitSha = await headSha(v.dir);
@@ -174,11 +205,7 @@ export async function mkver(output?: string): Promise<VersionInfo> {
   };
   const buf = renderVersionInfo(versionInfo);
 
-  try {
-    await mkdir(parsed.dir, { recursive: true });
-  } catch (err) {
-    if (err.code !== "EEXIST") throw err;
-  }
+  await mkdir(parsed.dir, { recursive: true });
 
   await writeFile(file, buf);
 

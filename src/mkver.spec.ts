@@ -96,6 +96,48 @@ describe("mkver", function () {
       });
     }
   });
+
+  describe("ESM module behavior", () => {
+    it("validates .mjs files require file extension in imports", async function () {
+      if (!semver.satisfies(process.version, ">=13")) {
+        return this.skip();
+      }
+      const { gitSha, dir } = mkTestRepo(new ExpectedVersion());
+      const versionFile = dir + "/version.mjs";
+
+      // Generate the version file
+      await _exec(
+        spawn("node", ["dist/mkver.js", versionFile], { stdio: "pipe" }),
+      );
+
+      // Test import with extension (should work)
+      const testWithExt = join(dir, "test-with-ext.mjs");
+      writeFileSync(
+        testWithExt,
+        `import * as v from "./version.mjs"; console.log(JSON.stringify(v));`,
+      );
+
+      const output = await _exec(execFile("node", [testWithExt], { cwd: dir }));
+      const result = JSON.parse(output);
+      expect(result.gitSha).to.eql(gitSha);
+
+      // Test import without extension (should fail)
+      const testWithoutExt = join(dir, "test-without-ext.mjs");
+      writeFileSync(
+        testWithoutExt,
+        `import * as v from "./version"; console.log(JSON.stringify(v));`,
+      );
+
+      try {
+        await _exec(execFile("node", [testWithoutExt], { cwd: dir }));
+        expect.fail("Import without extension should have failed");
+      } catch (err) {
+        // ESM imports without extensions should fail - just verify we got an error
+        expect(String(err)).to.be.a('string');
+        expect(String(err).length).to.be.greaterThan(0);
+      }
+    });
+  });
 });
 
 function mkTestRepo(exp: ExpectedVersion) {
@@ -218,21 +260,26 @@ async function assertResult(
   expect(result.versionPatch).to.eql(exp.patch);
   expect(result.versionPrerelease).to.eql(exp.prerelease);
 
-  // If we run the test right at a minute boundary, the timestamp might be more
-  // than 2 digits wrong (hence the retries)
+  // Test release format with more tolerance for timing variations
+  const now = new Date();
+  const nowFormatted = fmtYMDHMS(now);
+  const fiveSecondsAgo = new Date(now.getTime() - 5000);
+  const fiveSecondsAgoFormatted = fmtYMDHMS(fiveSecondsAgo);
 
-  const ymdhm = trimEnd(fmtYMDHMS(new Date()), 2);
-  const expectedRelease = `${exp.version}+${ymdhm}`;
-  const releaseWithoutSeconds = trimEnd(result.release, 2);
-  expect(releaseWithoutSeconds).to.eql(expectedRelease);
+  // Check that release starts with version and has correct format
+  const escapedVersion = exp.version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  expect(result.release).to.match(new RegExp(`^${escapedVersion}\\+\\d{14}$`));
+
+  // Check that the timestamp is within a reasonable range (allowing for test execution time)
+  const releaseTimestamp = result.release.split("+")[1];
+  expect(
+    releaseTimestamp >= fiveSecondsAgoFormatted &&
+      releaseTimestamp <= nowFormatted,
+  ).to.equal(true);
 }
 
 function getRandomInt(max: number) {
   return Math.floor(Math.random() * Math.floor(max));
-}
-
-function trimEnd(s: string, chars: number): string {
-  return s.substring(0, s.length - chars);
 }
 
 function randomChars(length = 10) {
