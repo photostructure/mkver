@@ -1,6 +1,6 @@
 {
   "name": "mkver",
-  "version": "4.0.1-pre",
+  "version": "4.0.1",
   "main": "./dist/mkver.js",
   "types": "./dist/mkver.d.ts",
   "description": "Node.js access to your app's version and release metadata",
