@@ -17,7 +17,7 @@ function notBlank(s: string | undefined): boolean {
 /**
  * Recursively searches for package.json starting from the given directory,
  * moving up the directory tree until found or reaching the filesystem root.
- * 
+ *
  * @param dir - The directory to start searching from
  * @returns Promise resolving to version and directory info, or undefined if not found
  * @throws Error if package.json is found but has no version field
@@ -48,7 +48,7 @@ async function findPackageVersion(
 
 /**
  * Retrieves the current git commit SHA from the specified directory.
- * 
+ *
  * @param cwd - The working directory to run git command in
  * @returns Promise resolving to the 40-character commit SHA
  * @throws Error if git command fails or returns invalid SHA
@@ -68,7 +68,7 @@ async function headSha(cwd: string): Promise<string> {
 
 /**
  * Retrieves the commit date of the current git HEAD as a Date object.
- * 
+ *
  * @param cwd - The working directory to run git command in
  * @returns Promise resolving to the Date of the commit
  * @throws Error if git command fails or returns invalid timestamp
@@ -118,7 +118,7 @@ export function fmtYMDHMS(d: Date): string {
 /**
  * Renders version information into the appropriate format based on file extension.
  * Supports TypeScript (.ts), ES modules (.mjs), and CommonJS (.js/.cjs) formats.
- * 
+ *
  * @param o - The version information object to render
  * @returns The formatted code as a string
  * @throws Error if the file extension is not supported
@@ -228,9 +228,9 @@ See <https://github.com/photostructure/mkver> for more information.`);
   }
 }
 
-// ESM entry point check
-if (import.meta.url === `file://${process.argv[1]}`) {
-  void main().catch((error) => {
+// CommonJS entry point check
+if (require.main === module) {
+  main().catch((error) => {
     console.error("Failed: " + error);
     exit(1);
   });

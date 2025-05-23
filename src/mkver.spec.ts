@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ChildProcess, execFile, execSync, spawn } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { platform, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { join, parse } from "node:path";
 import semver from "semver";
 import { fmtYMDHMS } from "./mkver.js";
@@ -59,9 +59,6 @@ describe("mkver", function () {
       });
 
       it("./ver.ts", async function () {
-        if (platform().startsWith("win")) {
-          return this.skip();
-        }
         const { gitSha, dir } = mkTestRepo(exp);
         return assertResult(gitSha, join(dir, "ver.ts"), exp);
       });
@@ -79,10 +76,18 @@ describe("mkver", function () {
         } catch (err) {
           // Accept either unsupported extension error, file creation errors, or TypeScript compilation errors
           const errMsg = String(err);
-          const isUnsupportedExtension = /Unsupported file extension/i.test(errMsg);
-          const isFileCreationError = /mkver failed to create file/i.test(errMsg);
-          const isTscError = /ENOENT/i.test(errMsg) || /spawn.*tsc/i.test(errMsg);
-          expect(isUnsupportedExtension || isFileCreationError || isTscError, `Expected unsupported extension, file creation error, or tsc error, got: ${errMsg}`).to.equal(true);
+          const isUnsupportedExtension = /Unsupported file extension/i.test(
+            errMsg,
+          );
+          const isFileCreationError = /mkver failed to create file/i.test(
+            errMsg,
+          );
+          const isTscError =
+            /ENOENT/i.test(errMsg) || /spawn.*tsc/i.test(errMsg);
+          expect(
+            isUnsupportedExtension || isFileCreationError || isTscError,
+            `Expected unsupported extension, file creation error, or tsc error, got: ${errMsg}`,
+          ).to.equal(true);
         }
       });
     });
@@ -138,14 +143,16 @@ describe("mkver", function () {
         expect.fail("Import without extension should have failed");
       } catch (err) {
         // ESM imports without extensions should fail - just verify we got an error
-        if (typeof err === 'string') {
+        if (typeof err === "string") {
           throw new Error(err);
         }
         const errStr = String(err);
-        expect(errStr).to.be.a('string');
+        expect(errStr).to.be.a("string");
         expect(errStr.length).to.be.greaterThan(0);
         // On Windows, the error might contain CRLF line endings
-        expect(errStr.replace(/\r\n/g, '\n')).to.contain('ERR_MODULE_NOT_FOUND');
+        expect(errStr.replace(/\r\n/g, "\n")).to.contain(
+          "ERR_MODULE_NOT_FOUND",
+        );
       }
     });
   });
@@ -187,7 +194,11 @@ function _exec(cp: ChildProcess): Promise<string> {
         res(buf.join(""));
       } else {
         const stderr = errBuf.join("");
-        rej(new Error(`Process failed with exit code ${code}${stderr ? `: ${stderr}` : ""}`));
+        rej(
+          new Error(
+            `Process failed with exit code ${code}${stderr ? `: ${stderr}` : ""}`,
+          ),
+        );
       }
     };
     cp.on("close", callback);
@@ -235,9 +246,9 @@ async function maybeCompile(pathToVersionFile: string): Promise<string> {
       ].join("\n"),
     );
     const args = ["--module", "commonjs", "--rootDir", parsed.dir, dest];
-    
+
     // Use npx for cross-platform TypeScript compilation
-    await _exec(spawn("npx", ["tsc", ...args]));
+    await _exec(spawn("npx", ["tsc", ...args], { stdio: "pipe", shell: true }));
     return dest.replace(/\.ts$/, ".js");
   }
 }
@@ -253,14 +264,16 @@ async function assertResult(
       spawn("node", ["dist/mkver.js", pathToVersionFile], { stdio: "pipe" }),
     );
   } catch (err) {
-    throw new Error(`mkver failed to create file: ${pathToVersionFile}: ${err}`);
+    throw new Error(
+      `mkver failed to create file: ${pathToVersionFile}: ${err}`,
+    );
   }
-  
+
   // Verify the version file was actually created
   if (!existsSync(pathToVersionFile)) {
     throw new Error(`mkver failed to create file: ${pathToVersionFile}`);
   }
-  
+
   const dest = await maybeCompile(pathToVersionFile);
   const output = await _exec(
     execFile("node", [dest], { cwd: parse(dest).dir }),
