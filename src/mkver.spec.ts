@@ -1,16 +1,10 @@
 import { expect } from "chai";
-import {
-  ChildProcess,
-  execFile,
-  execSync,
-  fork,
-  spawn,
-} from "node:child_process";
+import { ChildProcess, execFile, execSync, spawn } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { platform, tmpdir } from "node:os";
 import { join, parse } from "node:path";
-import * as semver from "semver";
-import { fmtYMDHMS } from "./mkver";
+import semver from "semver";
+import { fmtYMDHMS } from "./mkver.js";
 
 class ExpectedVersion {
   readonly major: number;
@@ -152,6 +146,9 @@ async function maybeCompile(pathToVersionFile: string): Promise<string> {
   const parsed = parse(pathToVersionFile);
   const dest = join(parsed.dir, "test" + parsed.ext);
 
+  // Ensure the destination directory exists
+  mkdirSync(parsed.dir, { recursive: true });
+
   if (parsed.ext === ".js") {
     writeFileSync(
       dest,
@@ -195,8 +192,9 @@ async function assertResult(
   pathToVersionFile: string,
   exp: ExpectedVersion,
 ) {
+  // Use spawn instead of fork for ESM compatibility
   await _exec(
-    fork("dist/mkver", [pathToVersionFile], { detached: false, stdio: "pipe" }),
+    spawn("node", ["dist/mkver.js", pathToVersionFile], { stdio: "pipe" }),
   );
   const dest = await maybeCompile(pathToVersionFile);
   const output = await _exec(

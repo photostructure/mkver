@@ -6,7 +6,7 @@ import type { ParsedPath } from "node:path";
 import { join, normalize, parse, resolve } from "node:path";
 import { argv, exit } from "node:process";
 import { promisify } from "node:util";
-import * as semver from "semver";
+import semver from "semver";
 
 const execFileP = promisify(execFile);
 
@@ -95,12 +95,13 @@ export function fmtYMDHMS(d: Date): string {
 function renderVersionInfo(o: VersionInfo): string {
   const msg = [];
   const ext = o.path.ext.toLowerCase();
-  const cjs = ext === ".js";
+  // .js maintains CommonJS for backward compatibility, .cjs is explicit CommonJS
+  const cjs = ext === ".js" || ext === ".cjs";
   const mjs = ext === ".mjs";
   const ts = ext === ".ts";
   if (!cjs && !mjs && !ts) {
     throw new Error(
-      `Unsupported file extension (expected output, ${JSON.stringify(o.path)}, to end in .ts, .js, or .mjs)`,
+      `Unsupported file extension (expected output, ${JSON.stringify(o.path)}, to end in .ts, .js, .mjs, or .cjs)`,
     );
   }
 
@@ -147,7 +148,7 @@ function renderVersionInfo(o: VersionInfo): string {
  *
  * @param output - The file to write to. Defaults to "./Version.ts". File format
  * is determined by the file extension. Supported extensions are ".ts", ".js",
- * and ".mjs".
+ * ".mjs", and ".cjs".
  * @returns The version and release metadata written to the file.
  */
 export async function mkver(output?: string): Promise<VersionInfo> {
@@ -200,7 +201,8 @@ See <https://github.com/photostructure/mkver> for more information.`);
   }
 }
 
-if (require.main === module) {
+// ESM entry point check
+if (import.meta.url === `file://${process.argv[1]}`) {
   void main().catch((error) => {
     console.error("Failed: " + error);
     exit(1);

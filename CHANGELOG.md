@@ -15,6 +15,16 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v3.1.0
+
+- ✨ Migrate to ESM-first architecture with full backward compatibility
+- ✨ Add `.cjs` file extension support for explicit CommonJS output
+- 📦 Update TypeScript configuration to target ES2022 with ESM output
+- 📦 Migrate ESLint to modern flat configuration format
+- 📦 Convert package scripts from yarn to npm
+- 📦 Track package-lock.json for dependency management
+- 📦 Update test suite for ESM compatibility (spawn vs fork)
+
 ## v3.0.2
 
 - 🐞 Remove console.log with `headSha` metadata
