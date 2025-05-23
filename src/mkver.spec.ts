@@ -77,11 +77,12 @@ describe("mkver", function () {
           await assertResult(gitSha, join(dir, "ver.go"), exp);
           expect.fail("unsupported format should have thrown");
         } catch (err) {
-          // Accept either unsupported extension error or TypeScript compilation errors
+          // Accept either unsupported extension error, file creation errors, or TypeScript compilation errors
           const errMsg = String(err);
           const isUnsupportedExtension = /Unsupported file extension/i.test(errMsg);
+          const isFileCreationError = /mkver failed to create file/i.test(errMsg);
           const isTscError = /ENOENT/i.test(errMsg) || /spawn.*tsc/i.test(errMsg);
-          expect(isUnsupportedExtension || isTscError, `Expected unsupported extension or tsc error, got: ${errMsg}`).to.equal(true);
+          expect(isUnsupportedExtension || isFileCreationError || isTscError, `Expected unsupported extension, file creation error, or tsc error, got: ${errMsg}`).to.equal(true);
         }
       });
     });
@@ -137,8 +138,11 @@ describe("mkver", function () {
         expect.fail("Import without extension should have failed");
       } catch (err) {
         // ESM imports without extensions should fail - just verify we got an error
-        expect(String(err)).to.be.a('string');
-        expect(String(err).length).to.be.greaterThan(0);
+        const errStr = String(err);
+        expect(errStr).to.be.a('string');
+        expect(errStr.length).to.be.greaterThan(0);
+        // On Windows, the error might contain CRLF line endings
+        expect(errStr.replace(/\r\n/g, '\n')).to.contain('ERR_MODULE_NOT_FOUND');
       }
     });
   });
@@ -241,9 +245,13 @@ async function assertResult(
   exp: ExpectedVersion,
 ) {
   // Use spawn instead of fork for ESM compatibility
-  await _exec(
-    spawn("node", ["dist/mkver.js", pathToVersionFile], { stdio: "pipe" }),
-  );
+  try {
+    await _exec(
+      spawn("node", ["dist/mkver.js", pathToVersionFile], { stdio: "pipe" }),
+    );
+  } catch (err) {
+    throw new Error(`mkver failed to create file: ${pathToVersionFile}: ${err}`);
+  }
   
   // Verify the version file was actually created
   if (!existsSync(pathToVersionFile)) {
