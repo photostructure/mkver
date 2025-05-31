@@ -58,6 +58,17 @@ The filename can be anything you want, but the file extension must be `.ts`,
 
 It also creates a [SemVer-compatible `release` tag](https://semver.org/#spec-item-10) in the format `${version}+${YYYYMMDDhhmmss of gitDate}`, and a `gitDate` `Date` instance representing when the last git commit occurred.
 
+## Module Format
+
+`mkver` itself is distributed as a CommonJS package to ensure maximum compatibility across different Node.js environments and platforms. While the tool internally uses ES modules during development, the distributed package uses CommonJS to avoid compatibility issues that can arise with ESM on certain platforms (particularly Windows).
+
+However, `mkver` generates output files in whatever format you need:
+- TypeScript (`.ts`) with ES module exports
+- ES modules (`.mjs`) with ES module exports  
+- CommonJS (`.js` or `.cjs`) with CommonJS exports
+
+The output format is determined solely by the file extension you specify.
+
 ## Installation
 
 ### Step 1: Add `mkver` to your package.json
