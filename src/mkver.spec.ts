@@ -248,12 +248,14 @@ async function maybeCompile(pathToVersionFile: string): Promise<string> {
     const args = ["--module", "commonjs", "--rootDir", parsed.dir, dest];
 
     // Use npx for cross-platform TypeScript compilation
-    // On Windows, npx is actually npx.cmd, so we need to use shell: true
-    // or use the cross-spawn approach. Using shell: false with "npx" directly
-    // will fail on Windows.
+    // On Windows, we need to use shell: true for npx to work properly
     const isWindows = process.platform === "win32";
-    const npxCmd = isWindows ? "npx.cmd" : "npx";
-    await _exec(spawn(npxCmd, ["tsc", ...args], { stdio: "pipe" }));
+    await _exec(
+      spawn("npx", ["tsc", ...args], {
+        stdio: "pipe",
+        shell: isWindows,
+      }),
+    );
     return dest.replace(/\.ts$/, ".js");
   }
 }
