@@ -43,6 +43,9 @@
       "release": true
     }
   },
+  "engines": {
+    "node": ">=20"
+  },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@types/chai": "^5.2.2",
