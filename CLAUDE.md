@@ -26,7 +26,7 @@ npm test
 
 # Lint and format
 npm run lint
-npm run prettier
+npm run fmt
 
 # Clean build artifacts
 npm run premake

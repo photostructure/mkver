@@ -11,6 +11,7 @@
     "make": "tsc && chmod +x dist/mkver.js",
     "pretest": "npm run make && npm run lint",
     "test": "mocha dist/**/*.spec.js",
+    "precommit": "npm run fmt && npm run lint && npm run test",
     "docs:build": "typedoc --out docs src/mkver.ts --readme README.md",
     "release": "release-it"
   },
@@ -47,24 +48,24 @@
     "node": ">=20"
   },
   "devDependencies": {
-    "@eslint/js": "^9.27.0",
+    "@eslint/js": "^9.28.0",
     "@types/chai": "^5.2.2",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.15.21",
+    "@types/node": "^22.15.29",
     "@types/semver": "^7.7.0",
     "chai": "^5.2.0",
     "chai-as-promised": "^8.0.1",
-    "eslint": "^9.27.0",
-    "mocha": "^11.4.0",
+    "eslint": "^9.28.0",
+    "mocha": "^11.5.0",
     "prettier": "^3.5.3",
     "prettier-plugin-organize-imports": "^4.1.0",
-    "release-it": "^19.0.2",
+    "release-it": "^19.0.3",
     "rimraf": "^6.0.1",
     "semver": "^7.7.2",
     "source-map-support": "^0.5.21",
-    "typedoc": "^0.28.4",
+    "typedoc": "^0.28.5",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.32.1"
+    "typescript-eslint": "^8.33.0"
   }
 }

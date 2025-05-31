@@ -9,8 +9,11 @@
       "Bash(npm run lint)",
       "Bash(npx tsc:*)",
       "Bash(git tag:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(mkdir:*)",
+      "Bash(rg:*)"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": false
 }
