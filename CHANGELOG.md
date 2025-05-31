@@ -15,6 +15,12 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v4.0.2
+
+- ✨ Add ESLint configuration for JavaScript and TypeScript linting
+- 📦 Fix cross-platform TypeScript compilation in tests using npx
+- 📦 Update GitHub Actions workflows to use numeric Node.js versions
+
 ## v4.0.1
 
 - 💔 Drop Node.js v18 and v21 support
