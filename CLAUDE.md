@@ -42,6 +42,7 @@ npm run premake
 ## Output Format Logic
 
 The tool determines output format by file extension:
+
 - `.ts`: TypeScript with `export const` declarations and default export
 - `.mjs`: ES modules with `export const` declarations and default export
 - `.js`: CommonJS with `exports.field = value` assignments (no default export)
@@ -52,7 +53,8 @@ All ESM formats include a default export object and semver parsing for major/min
 ## ESM Migration Notes
 
 This package is now ESM-first but maintains backward compatibility:
-- The CLI tool itself runs as ESM 
+
+- The CLI tool itself runs as ESM
 - Generated files still support both CJS and ESM based on user's chosen file extension
 - Tests use `spawn("node", ["dist/mkver.js"])` instead of `fork("dist/mkver")` for ESM compatibility
 

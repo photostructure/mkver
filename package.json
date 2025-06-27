@@ -5,7 +5,7 @@
   "types": "./dist/mkver.d.ts",
   "description": "Node.js access to your app's version and release metadata",
   "scripts": {
-    "fmt": "prettier --write src/*.ts",
+    "fmt": "prettier --write .",
     "lint": "eslint --fix src/*.ts",
     "premake": "rimraf dist",
     "make": "tsc && chmod +x dist/mkver.js",

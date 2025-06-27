@@ -33,14 +33,14 @@ Each file contains your git SHA and version information exported as constants.
 ```typescript
 // Version.ts
 
-export const version = "1.2.3-beta.4"
-export const versionMajor = 1
-export const versionMinor = 2
-export const versionPatch = 3
-export const versionPrerelease = ["beta", 4]
-export const release = "1.2.3-beta.4+20220101105815"
-export const gitSha = "dc336bc8e1ea6b4e2f393f98233839b6c23cb812"
-export const gitDate = new Date(1641063495000)
+export const version = "1.2.3-beta.4";
+export const versionMajor = 1;
+export const versionMinor = 2;
+export const versionPatch = 3;
+export const versionPrerelease = ["beta", 4];
+export const release = "1.2.3-beta.4+20220101105815";
+export const gitSha = "dc336bc8e1ea6b4e2f393f98233839b6c23cb812";
+export const gitDate = new Date(1641063495000);
 export default {
   version,
   versionMajor,
@@ -50,7 +50,7 @@ export default {
   release,
   gitSha,
   gitDate,
-}
+};
 ```
 
 The filename can be anything you want, but the file extension must be `.ts`,
@@ -63,8 +63,9 @@ It also creates a [SemVer-compatible `release` tag](https://semver.org/#spec-ite
 `mkver` itself is distributed as a CommonJS package to ensure maximum compatibility across different Node.js environments and platforms. While the tool internally uses ES modules during development, the distributed package uses CommonJS to avoid compatibility issues that can arise with ESM on certain platforms (particularly Windows).
 
 However, `mkver` generates output files in whatever format you need:
+
 - TypeScript (`.ts`) with ES module exports
-- ES modules (`.mjs`) with ES module exports  
+- ES modules (`.mjs`) with ES module exports
 - CommonJS (`.js` or `.cjs`) with CommonJS exports
 
 The output format is determined solely by the file extension you specify.
@@ -119,13 +120,13 @@ If anything goes wrong, `mkver` will output errors to `stderr` and exit with a n
 ### Use with TypeScript or MJS modules
 
 ```ts
-import { version, release } from "./Version"
+import { version, release } from "./Version";
 ```
 
 ### Use with CommonJS
 
 ```js
-const { version, release } = require("./version") // Ensure the case matches your mkver output filename
+const { version, release } = require("./version"); // Ensure the case matches your mkver output filename
 ```
 
 Remember to specify `mkver version.js` (or `version.cjs`) in your npm script (see Installation Step 2 above).
@@ -137,7 +138,7 @@ Need access to your `release` from a bash deploy script?
 ```sh
   # For CommonJS (.js or .cjs files):
   release=$(node -e "console.log(require('./path/to/version.js').release)")
-  
+
   # For ESM (.mjs or .ts files):
   release=$(node -e "import('./path/to/version.mjs').then(m => console.log(m.release))")
 ```
