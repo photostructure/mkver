@@ -15,6 +15,10 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v4.0.3
+
+- 📦 Update GitHub Actions to publish via OIDC
+
 ## v4.0.2
 
 - ✨ Add ESLint configuration for JavaScript and TypeScript linting

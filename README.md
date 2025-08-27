@@ -2,7 +2,7 @@
 [Node.js](https://nodejs.org/)**
 
 [![npm version](https://img.shields.io/npm/v/mkver.svg)](https://www.npmjs.com/package/mkver)
-[![Node.js CI](https://github.com/photostructure/mkver/actions/workflows/node.js.yml/badge.svg)](https://github.com/photostructure/mkver/actions/workflows/node.js.yml)
+[![Build & Release](https://github.com/photostructure/mkver/actions/workflows/build.yml/badge.svg)](https://github.com/photostructure/mkver/actions/workflows/build.yml)
 [![CodeQL](https://github.com/photostructure/mkver/actions/workflows/codeql.yml/badge.svg)](https://github.com/photostructure/mkver/actions/workflows/codeql.yml)
 
 ## Why?

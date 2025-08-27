@@ -11,16 +11,20 @@
     "make": "tsc && chmod +x dist/mkver.js",
     "pretest": "npm run make && npm run lint",
     "test": "mocha dist/**/*.spec.js",
-    "precommit": "npm run fmt && npm run lint && npm run test",
+    "update": "run-p update:*",
+    "update:ncu": "npm-check-updates --upgrade --install always",
+    "install:pinact": "go install github.com/suzuki-shunsuke/pinact/cmd/pinact@latest",
+    "update:pinact": "pinact run -u",
+    "precommit": "run-s update fmt lint test",
     "docs:build": "typedoc --out docs src/mkver.ts --readme README.md",
     "release": "release-it"
   },
   "bin": {
-    "mkver": "./dist/mkver.js"
+    "mkver": "./dist/mkver.cjs"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/photostructure/mkver.git"
+    "url": "git+https://github.com/photostructure/mkver.git"
   },
   "keywords": [
     "Version"
@@ -42,6 +46,10 @@
     },
     "github": {
       "release": true
+    },
+    "npm": {
+      "publish": true,
+      "skipChecks": true
     }
   },
   "engines": {
