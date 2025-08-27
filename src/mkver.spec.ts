@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, parse } from "node:path";
 import semver from "semver";
-import { fmtYMDHMS } from "./mkver.js";
+import { fmtYMDHMS } from "./mkver";
 
 class ExpectedVersion {
   readonly major: number;
