@@ -27,7 +27,20 @@
     "url": "git+https://github.com/photostructure/mkver.git"
   },
   "keywords": [
-    "Version"
+    "version",
+    "versioning",
+    "build-metadata",
+    "git-sha",
+    "semver",
+    "typescript",
+    "esm",
+    "commonjs",
+    "cli-tool",
+    "build-pipeline",
+    "deployment",
+    "code-generation",
+    "nodejs",
+    "electron"
   ],
   "author": "Matthew McEachen <matthew-mkver@photostructure.com>",
   "license": "MIT",
