@@ -15,6 +15,10 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v4.1.0
+
+- 🐞 Fix [#49](https://github.com/photostructure/mkver/issues/49), which required `semver` to be added as a proper dependency, and the path to `mkver` to be fixed. Thanks, [Rob van der Leek](https://github.com/robvanderleek)!
+
 ## v4.0.3
 
 - 📦 Update GitHub Actions to publish via OIDC
