@@ -20,7 +20,7 @@
     "release": "release-it"
   },
   "bin": {
-    "mkver": "./dist/mkver.cjs"
+    "mkver": "./dist/mkver.js"
   },
   "repository": {
     "type": "git",
@@ -67,6 +67,9 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "semver": "^7.7.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
