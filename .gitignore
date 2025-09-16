@@ -6,3 +6,9 @@ node_modules
 npm-debug.log*
 yarn.lock
 docs/
+# In case we run the tool locally, we don't want to commit these:
+Version.d.ts
+Version.js
+Version.js.map
+Version.mjs
+Version.ts
