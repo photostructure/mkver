@@ -93,6 +93,38 @@ describe("mkver", function () {
     });
   }
 
+  describe("CLI flags", () => {
+    it("shows version with --version flag", async () => {
+      const output = await _exec(
+        spawn("node", [join(process.cwd(), "dist", "mkver.js"), "--version"], {
+          stdio: "pipe",
+        }),
+      );
+      expect(output.trim()).to.match(/^\d+\.\d+\.\d+/);
+    });
+
+    it("shows version with -v flag", async () => {
+      const output = await _exec(
+        spawn("node", [join(process.cwd(), "dist", "mkver.js"), "-v"], {
+          stdio: "pipe",
+        }),
+      );
+      expect(output.trim()).to.match(/^\d+\.\d+\.\d+/);
+    });
+
+    it("shows help with --help flag", async () => {
+      const output = await _exec(
+        spawn("node", [join(process.cwd(), "dist", "mkver.js"), "--help"], {
+          stdio: "pipe",
+        }),
+      );
+      expect(output).to.contain("Usage: mkver [FILE]");
+      expect(output).to.contain(
+        "Provides Node.js access to your app's version",
+      );
+    });
+  });
+
   describe("ESM module behavior", () => {
     it("validates .mjs files require file extension in imports", async function () {
       if (!semver.satisfies(process.version, ">=13")) {

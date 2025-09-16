@@ -111,6 +111,35 @@ Add `mkver` as a `pre...` script for your test script and/or build pipeline in y
 You should add your `Version.ts`, `version.mjs`, `version.js`, or `version.cjs` file to
 your project's `.gitignore`.
 
+## Usage
+
+```bash
+mkver [FILE]
+```
+
+Where `FILE` is optional and defaults to `./Version.ts`.
+
+### CLI Options
+
+- `-h, --help` - Show help message
+- `-v, --version` - Show version number
+
+### Examples
+
+```bash
+# Generate Version.ts (default)
+mkver
+
+# Generate a specific file
+mkver ./src/version.mjs
+
+# Show version
+mkver --version
+
+# Show help
+mkver --help
+```
+
 ## How
 
 `mkver` is a simple, dependency-free, three-step tool:
@@ -119,7 +148,7 @@ your project's `.gitignore`.
 2. `mkver` executes `git rev-parse HEAD` to get the last commit SHA. Git must be available in your PATH.
 3. `mkver` writes the output to the specified file (default: `./Version.ts`). The file extension determines the output format (TypeScript, ESM, or CommonJS). Existing files will be overwritten.
 
-If anything goes wrong, `mkver` will output errors to `stderr` and exit with a non-zero code.
+If anything goes wrong, `mkver` will output (hopefully) helpful error messages to `stderr` and exit with a non-zero code.
 
 ### Use with TypeScript or MJS modules
 

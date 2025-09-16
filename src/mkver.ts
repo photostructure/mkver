@@ -256,12 +256,28 @@ async function main() {
 
   if (["--help", "-h"].includes(arg)) {
     // Show them usage instructions:
-    console.log(`Usage: mkver [FILE] 
+    console.log(`Usage: mkver [FILE]
 Provides Node.js access to your app's version and release metadata.
 
 With no FILE, default output is "./Version.ts".
 
+Options:
+  -h, --help     Show this help message
+  -v, --version  Show version number
+
 See <https://github.com/photostructure/mkver> for more information.`);
+  } else if (["--version", "-v"].includes(arg)) {
+    // Show version information
+    try {
+      const packageInfo = await findPackageVersion(__dirname);
+      if (packageInfo) {
+        console.log(packageInfo.version);
+      } else {
+        console.log("Unknown version");
+      }
+    } catch {
+      console.log("Unknown version");
+    }
   } else {
     return mkver(arg);
   }
