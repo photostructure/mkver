@@ -1,0 +1,26 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/mkver.ts"],
+  "out": "docs",
+  "name": "mkver",
+  "includeVersion": false,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "readme": "README.md",
+  "githubPages": true,
+  "gitRevision": "main",
+  "exclude": ["**/*.test.ts", "**/*.spec.ts", "**/test/**", "**/update/**"],
+  "navigationLinks": {
+    "GitHub": "https://github.com/photostructure/mkver",
+    "NPM": "https://www.npmjs.com/package/mkver"
+  },
+  "highlightLanguages": [
+    "bash",
+    "docker",
+    "javascript",
+    "json",
+    "typescript",
+    "yaml"
+  ],
+  "projectDocuments": ["CHANGELOG.md"]
+}
