@@ -144,6 +144,83 @@ describe("mkver", function () {
   });
 });
 
+describe("git prerequisites", () => {
+  it("fails gracefully outside a git repository", async () => {
+    const dir = join(tmpdir(), randomChars());
+    mkdirSync(dir);
+    writeFileSync(
+      join(dir, "package.json"),
+      JSON.stringify({ version: "1.0.0" }),
+    );
+
+    try {
+      await _exec(
+        spawn("node", [join(process.cwd(), "dist", "mkver.js")], {
+          cwd: dir,
+          stdio: "pipe",
+        }),
+      );
+      expect.fail("mkver should have failed when run outside a git repository");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      expect(message).to.contain("Process failed with exit code 1");
+      expect(message).to.contain("inside a git repository");
+    }
+  });
+
+  it("fails gracefully when git repo has no commits", async () => {
+    const dir = join(tmpdir(), randomChars());
+    mkdirSync(dir);
+    writeFileSync(
+      join(dir, "package.json"),
+      JSON.stringify({ version: "1.0.0" }),
+    );
+    execSync("git init", { cwd: dir });
+    execSync("git config user.name anonymous", { cwd: dir });
+    execSync("git config user.email anon@example.com", { cwd: dir });
+
+    try {
+      await _exec(
+        spawn("node", [join(process.cwd(), "dist", "mkver.js")], {
+          cwd: dir,
+          stdio: "pipe",
+        }),
+      );
+      expect.fail(
+        "mkver should have failed when the repository has no commits",
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      expect(message).to.contain("Process failed with exit code 1");
+      expect(message).to.contain("has no commits yet");
+    }
+  });
+
+  it("fails gracefully when git is not installed", async () => {
+    const dir = join(tmpdir(), randomChars());
+    mkdirSync(dir);
+    writeFileSync(
+      join(dir, "package.json"),
+      JSON.stringify({ version: "1.0.0" }),
+    );
+
+    try {
+      await _exec(
+        spawn("node", [join(process.cwd(), "dist", "mkver.js")], {
+          cwd: dir,
+          stdio: "pipe",
+          env: { ...process.env, GIT: "not-actually-git" },
+        }),
+      );
+      expect.fail("mkver should have failed when git is not installed");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      expect(message).to.contain("Process failed with exit code 1");
+      expect(message).to.contain("git but it was not found on your PATH");
+    }
+  });
+});
+
 function mkTestRepo(exp: ExpectedVersion) {
   const dir = join(tmpdir(), randomChars());
   mkdirSync(dir);

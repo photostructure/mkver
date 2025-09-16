@@ -15,6 +15,15 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v4.2.0
+
+- ✨ Enhanced git error handling with user-friendly, actionable error messages for common failure scenarios:
+  - `git` not available
+  - Running outside a git repository
+  - Running in a git repository with no commits
+- 📦 Added comprehensive test coverage for git prerequisite failure modes
+- 📦 Support for `GIT` environment variable to override git command (useful for testing)
+
 ## v4.1.0
 
 - 🐞 Fix [#49](https://github.com/photostructure/mkver/issues/49), which required `semver` to be added as a proper dependency, and the path to `mkver` to be fixed. Thanks, [Rob van der Leek](https://github.com/robvanderleek)!

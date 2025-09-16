@@ -1,15 +1,80 @@
 #!/usr/bin/env node
 
-import { execFile } from "node:child_process";
+import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import type { ParsedPath } from "node:path";
 import { join, normalize, parse, resolve } from "node:path";
 import { argv, exit } from "node:process";
-import { promisify } from "node:util";
 import semver from "semver";
 import { fmtYMDHMS } from "./date";
 
-const execFileP = promisify(execFile);
+async function runGit(args: string[], cwd: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const gitCmd = process.env.GIT ?? "git";
+    const child = spawn(gitCmd, args, { cwd, stdio: "pipe" });
+    let stdout = "";
+    let stderr = "";
+
+    child.stdout?.on("data", (data) => (stdout += data));
+    child.stderr?.on("data", (data) => (stderr += data));
+
+    child.on("error", (error) => {
+      reject(gitError(error, cwd, args));
+    });
+
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve(stdout);
+      } else {
+        reject(gitError({ code, stderr }, cwd, args));
+      }
+    });
+  });
+}
+
+function gitError(error: unknown, cwd: string, args: readonly string[]): Error {
+  if (typeof error === "object" && error != null) {
+    const err = error as { code?: string | number; stderr?: string };
+    if (err.code === "ENOENT") {
+      return new Error(
+        "mkver requires git but it was not found on your PATH. Install git and try again.",
+      );
+    }
+
+    const stderr = err.stderr?.trim() ?? "";
+
+    if (/not a git repository/i.test(stderr)) {
+      return new Error(
+        `Directory ${cwd} is not inside a git repository. Run mkver from within a git repo or initialize one and retry.`,
+      );
+    }
+
+    if (
+      /does not have any commits yet/i.test(stderr) ||
+      /ambiguous argument ['"]HEAD['"]/i.test(stderr) ||
+      /unknown revision or path not in the working tree/i.test(stderr)
+    ) {
+      return new Error(
+        `The git repository at ${cwd} has no commits yet. Create an initial commit before running mkver.`,
+      );
+    }
+
+    if (stderr.length > 0) {
+      return new Error(`git ${args.join(" ")} failed: ${stderr}`);
+    }
+
+    if (
+      typeof (err as Error).message === "string" &&
+      (err as Error).message.length > 0
+    ) {
+      return new Error(
+        `git ${args.join(" ")} failed: ${(err as Error).message}`,
+      );
+    }
+  }
+
+  return new Error(`git ${args.join(" ")} failed: ${String(error)}`);
+}
 
 function notBlank(s: string | undefined): boolean {
   return s != null && String(s).trim().length > 0;
@@ -55,11 +120,7 @@ async function findPackageVersion(
  * @throws Error if git command fails or returns invalid SHA
  */
 async function headSha(cwd: string): Promise<string> {
-  const gitSha = (
-    await execFileP("git", ["rev-parse", "-q", "HEAD"], { cwd })
-  ).stdout
-    .toString()
-    .trim();
+  const gitSha = (await runGit(["rev-parse", "-q", "HEAD"], cwd)).trim();
   if (gitSha.length !== 40 || !/^[a-f0-9]{40}$/i.test(gitSha)) {
     throw new Error("Invalid git SHA: " + gitSha);
   } else {
@@ -75,11 +136,7 @@ async function headSha(cwd: string): Promise<string> {
  * @throws Error if git command fails or returns invalid timestamp
  */
 async function headUnixtime(cwd: string): Promise<Date> {
-  const unixtimeStr = (
-    await execFileP("git", ["log", "-1", "--pretty=format:%ct"], {
-      cwd,
-    })
-  ).stdout.toString();
+  const unixtimeStr = await runGit(["log", "-1", "--pretty=format:%ct"], cwd);
   const unixtime = parseInt(unixtimeStr);
   const date = new Date(unixtime * 1000);
   if (date > new Date() || date < new Date(2000, 0, 1)) {
@@ -150,24 +207,25 @@ function renderVersionInfo(o: VersionInfo): string {
   }
 
   if (ts || mjs) {
-    msg.push(`export default {${fields.join(",")}};`);
+    msg.push(`export default {\n  ${fields.join(",\n  ")},\n};`);
   }
   return msg.join("\n") + "\n";
 }
 
 /**
- * Writes a file with version and release metadata to `output`
+ * Writes a file with version and release metadata to `outputFilePath`
  *
- * @param output - The file to write to. Defaults to "./Version.ts". File format
- * is determined by the file extension. Supported extensions are ".ts", ".js",
- * ".mjs", and ".cjs".
+ * @param outputFilePath - The file to write to. Defaults to "./Version.ts" if
+ * the parameter is not provided or "". The file format is determined by the
+ * file extension. Supported extensions are ".ts", ".js", ".mjs", and ".cjs".
+ *
  * @returns The version and release metadata written to the file.
  */
-export async function mkver(output?: string): Promise<VersionInfo> {
-  if (output == null || output.trim().length === 0) {
-    output = "./Version.ts";
+export async function mkver(outputFilePath?: string): Promise<VersionInfo> {
+  if (outputFilePath == null || outputFilePath.trim().length === 0) {
+    outputFilePath = "./Version.ts";
   }
-  const file = resolve(normalize(output));
+  const file = resolve(normalize(outputFilePath));
   const parsed = parse(file);
   const v = await findPackageVersion(parsed.dir);
   if (v == null) {
@@ -209,8 +267,8 @@ See <https://github.com/photostructure/mkver> for more information.`);
   }
 }
 
-// CommonJS entry point check
-if (require.main === module) {
+// Entry point check - if this module is run directly. (`require` may not be defined!)
+if (require?.main === module) {
   main().catch((error) => {
     console.error("Failed: " + error);
     exit(1);

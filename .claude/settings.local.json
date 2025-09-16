@@ -11,7 +11,8 @@
       "Bash(git tag:*)",
       "Bash(grep:*)",
       "Bash(mkdir:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "WebSearch"
     ],
     "deny": []
   },
