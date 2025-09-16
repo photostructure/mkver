@@ -53,10 +53,14 @@ export default {
 };
 ```
 
-The filename can be anything you want, but the file extension must be `.ts`,
-`.mjs`, `.js`, or `.cjs`.
+The filename can be anything you want as long as the file extension is:
 
-It also creates a [SemVer-compatible `release` tag](https://semver.org/#spec-item-10) in the format `${version}+${YYYYMMDDhhmmss of gitDate}`, and a `gitDate` `Date` instance representing when the last git commit occurred.
+- `.ts`,
+- `.mjs`,
+- `.js`, or
+- `.cjs`.
+
+It also creates a [SemVer-compatible `release` field](https://semver.org/#spec-item-10) in the format `${version}+${YYYYMMDDhhmmss of gitDate}`, and a `gitDate` `Date` instance representing when the last git commit occurred.
 
 ## Module Format
 
