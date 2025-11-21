@@ -58,22 +58,35 @@ jobs:
           git-user-name: ${{ secrets.GIT_USER_NAME }}
           git-user-email: ${{ secrets.GIT_USER_EMAIL }}
 
-      - name: Update npm to latest
+      - name: Update npm to latest to get --provenance support
         run: |
-          echo "Current npm version:"
-          npm --version
-          echo "Updating npm to latest..."
           npm install -g npm@latest
-          echo "New npm version:"
           npm --version
 
       - name: Install dependencies
         run: npm ci
 
-      # Note: Tests are run by release-it's before:init hook via npm run lint
-      # This avoids running the full test matrix (9+ OS/Node combinations) in the release workflow
-      # The lint script is sufficient for release validation since full tests already passed
-      - name: Release with release-it
-        run: npm run release -- --ci ${{ github.event.inputs.version }}
+      - name: Run tests before publishing
+        run: npm test
+
+      - name: Bump version and create tag
+        run: |
+          VERSION_ARG="${{ github.event.inputs.version }}"
+          if [ -z "$VERSION_ARG" ]; then
+            VERSION_ARG="patch"
+          fi
+          npm version "$VERSION_ARG" --sign-git-tag -m "chore(release): %s"
+          echo "NEW_VERSION=$(npm pkg get version | tr -d '\"')" >> $GITHUB_ENV
+
+      - name: Push changes and tags
+        run: |
+          git push origin main
+          git push origin --tags
+
+      - name: Create GitHub Release
+        run: gh release create "v${{ env.NEW_VERSION }}" --generate-notes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm with OIDC
+        run: npm publish --provenance
