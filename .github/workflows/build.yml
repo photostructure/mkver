@@ -23,9 +23,9 @@ jobs:
         node-version: [20, 22, 24, 25]
 
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
@@ -39,20 +39,20 @@ jobs:
       id-token: write # Required for OIDC trusted publishing
       contents: write # Required to push tags and create releases
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0 # Need full history for version tags
           lfs: true
 
       # setup-node with registry-url is required for OIDC trusted publishing
-      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version: 20
           cache: "npm"
           registry-url: "https://registry.npmjs.org"
 
       - name: Set up SSH signing
-        uses: photostructure/git-ssh-signing-action@a770c2ff3aea31d9df9f2974ac9d672f2bfe62f3 # v1.1.0
+        uses: photostructure/git-ssh-signing-action@fdd4b062a9ba41473f013258cc9c7eea1640f826 # v1.2.0
         with:
           ssh-signing-key: ${{ secrets.SSH_SIGNING_KEY }}
           git-user-name: ${{ secrets.GIT_USER_NAME }}
