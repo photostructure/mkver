@@ -48,7 +48,7 @@
   },
   "homepage": "https://github.com/photostructure/mkver#readme",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "semver": "^7.7.3"
