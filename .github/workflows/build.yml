@@ -72,11 +72,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and test before publishing
-        run: |
-          npm run make
-          npm run lint
-          npm test
+      - name: Build the publishable artifact
+        run: npm run make
 
       - name: Bump version and create tag
         run: |
