@@ -15,6 +15,14 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v5.0.0
+
+- 💔 Drop support for Node.js v20 (EOL). `mkver` now requires Node.js v22 or later.
+- 📦 Security hardening: add `.npmrc` to disable npm lifecycle scripts and add `SECURITY.md` with vulnerability reporting guidelines
+- 📦 Update CI Node.js matrix to v22, v24, and v26
+- 📦 Switch from the abandoned `npm-run-all` to `npm-run-all2` and update dev dependencies
+- 📦 Update GitHub Actions (`checkout`, `setup-node`) and pin them via `pinact`; remove the deprecated dependabot config
+
 ## v4.3.0
 
 - ✨ Added `--version` and `-v` CLI flags to display version number
