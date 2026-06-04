@@ -162,7 +162,7 @@ describe("mkver", function () {
       } catch (err) {
         // ESM imports without extensions should fail - just verify we got an error
         if (typeof err === "string") {
-          throw new Error(err);
+          throw new Error(err, { cause: err });
         }
         const errStr = String(err);
         expect(errStr).to.be.a("string");
@@ -340,7 +340,21 @@ async function maybeCompile(pathToVersionFile: string): Promise<string> {
         "",
       ].join("\n"),
     );
-    const args = ["--module", "commonjs", "--rootDir", parsed.dir, dest];
+    // When files are passed on the command line, tsc ignores tsconfig.json
+    // entirely and uses only the flags given here -- which is exactly what we
+    // want, since this is a throwaway fixture compiled with explicit options.
+    // Historically that ignore was silent; TS 6.0 turned it into an error
+    // (TS5112) whenever a tsconfig.json exists in cwd, to stop people from
+    // assuming their config still applies. --ignoreConfig opts back into the
+    // old "yes, skip the config" behavior.
+    const args = [
+      "--ignoreConfig",
+      "--module",
+      "commonjs",
+      "--rootDir",
+      parsed.dir,
+      dest,
+    ];
 
     // Use npx for cross-platform TypeScript compilation
     // On Windows, we need to use shell: true for npx to work properly
@@ -368,6 +382,7 @@ async function assertResult(
   } catch (err) {
     throw new Error(
       `mkver failed to create file: ${pathToVersionFile}: ${err}`,
+      { cause: err },
     );
   }
 

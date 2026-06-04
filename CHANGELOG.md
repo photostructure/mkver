@@ -15,6 +15,12 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v5.0.1
+
+- 📦 Upgrade dev toolchain to TypeScript 6.0 and ESLint 10, and refresh dev dependencies
+- 📦 Migrate `tsconfig.json` to `moduleResolution: "bundler"` with an explicit `types` list (TypeScript 6.0 no longer auto-discovers `@types`)
+- 📦 Pass `--ignoreConfig` when compiling generated `.ts` fixtures in tests (TypeScript 6.0 now errors with TS5112 when files are given on the command line alongside a `tsconfig.json`)
+
 ## v5.0.0
 
 - 💔 Drop support for Node.js v20 (EOL). `mkver` now requires Node.js v22 or later.

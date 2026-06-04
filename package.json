@@ -15,7 +15,7 @@
     "update:ncu": "npm-check-updates --upgrade --install always",
     "install:pinact": "go install github.com/suzuki-shunsuke/pinact/v3/cmd/pinact@latest",
     "update:pinact": "pinact run -u",
-    "precommit": "run-s update fmt lint test",
+    "all": "run-s update fmt lint test",
     "docs:build": "typedoc"
   },
   "bin": {
@@ -51,27 +51,27 @@
     "node": ">=22"
   },
   "dependencies": {
-    "semver": "^7.7.3"
+    "semver": "^7.8.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.9.1",
     "@types/semver": "^7.7.1",
-    "chai": "^6.2.1",
+    "chai": "^6.2.2",
     "chai-as-promised": "^8.0.2",
-    "eslint": "^9.39.2",
-    "mocha": "^11.7.5",
-    "npm-check-updates": "^19.2.0",
-    "npm-run-all2": "8.0.4",
-    "prettier": "^3.7.4",
+    "eslint": "^10.4.1",
+    "mocha": "^11.7.6",
+    "npm-check-updates": "^22.2.2",
+    "npm-run-all2": "9.0.1",
+    "prettier": "^3.8.3",
     "prettier-plugin-organize-imports": "^4.3.0",
-    "rimraf": "^6.1.2",
+    "rimraf": "^6.1.3",
     "source-map-support": "^0.5.21",
-    "typedoc": "^0.28.15",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.0"
+    "typedoc": "^0.28.19",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.1"
   }
 }
