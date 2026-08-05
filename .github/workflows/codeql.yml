@@ -8,14 +8,20 @@ on:
   schedule:
     - cron: "37 20 * * 1"
 
+permissions: {}
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
-      actions: read
+      actions: read # Read workflow metadata for CodeQL analysis.
       contents: read
-      security-events: write
+      security-events: write # Upload CodeQL results.
 
     strategy:
       fail-fast: false
@@ -25,6 +31,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2

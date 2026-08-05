@@ -1,0 +1,212 @@
+name: Stage npm Release
+run-name: Stage ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stage-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate signed release tag
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout the release tag
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify tag, version, and signatures
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "$GITHUB_REF" != refs/tags/v* ]]; then
+            echo "::error::This workflow must run at a v* tag, not $GITHUB_REF"
+            exit 1
+          fi
+
+          VERSION="$(node -p "require('./package.json').version")"
+          if [[ "$REF_NAME" != "v$VERSION" ]]; then
+            echo "::error::Tag $REF_NAME does not match package version $VERSION"
+            exit 1
+          fi
+
+          TAG_OBJECT_SHA="$(
+            gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$REF_NAME" --jq '.object.sha'
+          )"
+          TAG_TARGET_TYPE="$(
+            gh api "repos/$GITHUB_REPOSITORY/git/tags/$TAG_OBJECT_SHA" --jq '.object.type'
+          )"
+          TAG_TARGET_SHA="$(
+            gh api "repos/$GITHUB_REPOSITORY/git/tags/$TAG_OBJECT_SHA" --jq '.object.sha'
+          )"
+          TAG_VERIFIED="$(
+            gh api "repos/$GITHUB_REPOSITORY/git/tags/$TAG_OBJECT_SHA" --jq '.verification.verified'
+          )"
+          COMMIT_VERIFIED="$(
+            gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA" --jq '.commit.verification.verified'
+          )"
+
+          if [[ "$TAG_TARGET_TYPE" != commit || "$TAG_TARGET_SHA" != "$GITHUB_SHA" ]]; then
+            echo "::error::Tag $REF_NAME does not point directly to the workflow commit"
+            exit 1
+          fi
+          if [[ "$TAG_VERIFIED" != true || "$COMMIT_VERIFIED" != true ]]; then
+            echo "::error::The release commit and annotated tag must both have verified signatures"
+            exit 1
+          fi
+
+  test:
+    name: Test Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: validate
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [22, 24, 26]
+    steps:
+      - name: Checkout the release tag
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - run: npm run make
+      - run: npm run lint
+      - run: npm test
+      - name: Verify the tested source stayed unchanged
+        run: git diff --exit-code
+
+  pack:
+    name: Build exact npm tarball
+    runs-on: ubuntu-24.04
+    needs: test
+    steps:
+      - name: Checkout the release tag
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Install the release Node.js toolchain
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.18.1
+          package-manager-cache: false
+      - name: Install build dependencies
+        run: npm ci --ignore-scripts
+      - name: Build the package
+        run: npm run make
+      - name: Pack and inventory the package
+        run: |
+          mkdir package-artifact
+          npm pack --ignore-scripts --pack-destination package-artifact
+          TARBALL_COUNT="$(find package-artifact -maxdepth 1 -type f -name '*.tgz' | wc -l)"
+          if [[ "$TARBALL_COUNT" -ne 1 ]]; then
+            echo "::error::Expected exactly one package tarball, found $TARBALL_COUNT"
+            exit 1
+          fi
+          TARBALL="$(find package-artifact -maxdepth 1 -type f -name '*.tgz')"
+          tar -tzf "$TARBALL" | LC_ALL=C sort > package-artifact/CONTENTS.txt
+          (
+            cd package-artifact
+            sha256sum -- *.tgz > SHA256SUMS
+          )
+      - name: Upload the exact package
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: npm-package-${{ github.ref_name }}
+          path: package-artifact/
+          if-no-files-found: error
+          retention-days: 1
+
+  stage:
+    name: Stage package on npm
+    runs-on: ubuntu-24.04
+    needs: pack
+    permissions:
+      contents: read
+      id-token: write # Exchange GitHub OIDC identity for npm staging access.
+    steps:
+      - name: Download the exact package
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: npm-package-${{ github.ref_name }}
+          path: package-artifact/
+      - name: Install the release Node.js toolchain
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.18.1
+          package-manager-cache: false
+          registry-url: https://registry.npmjs.org
+      - name: Verify the release tag still matches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          TAG_OBJECT_SHA="$(
+            gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$REF_NAME" --jq '.object.sha'
+          )"
+          TAG_TARGET_SHA="$(
+            gh api "repos/$GITHUB_REPOSITORY/git/tags/$TAG_OBJECT_SHA" --jq '.object.sha'
+          )"
+          TAG_VERIFIED="$(
+            gh api "repos/$GITHUB_REPOSITORY/git/tags/$TAG_OBJECT_SHA" --jq '.verification.verified'
+          )"
+          if [[ "$TAG_TARGET_SHA" != "$GITHUB_SHA" || "$TAG_VERIFIED" != true ]]; then
+            echo "::error::Tag $REF_NAME moved or lost its verified signature"
+            exit 1
+          fi
+      - name: Stage the npm package
+        run: |
+          (
+            cd package-artifact
+            sha256sum --check SHA256SUMS
+          )
+          mapfile -t TARBALLS < <(
+            find package-artifact -maxdepth 1 -type f -name '*.tgz'
+          )
+          if [[ "${#TARBALLS[@]}" -ne 1 ]]; then
+            echo "::error::Expected exactly one package tarball, found ${#TARBALLS[@]}"
+            exit 1
+          fi
+          npm stage publish "${TARBALLS[0]}" --ignore-scripts
+
+  github-release:
+    name: Create immutable GitHub release
+    runs-on: ubuntu-24.04
+    needs: stage
+    permissions:
+      contents: write # Create the immutable GitHub release.
+    steps:
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          TAG_OBJECT_SHA="$(
+            gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" --jq '.object.sha'
+          )"
+          TAG_TARGET_SHA="$(
+            gh api "repos/$GITHUB_REPOSITORY/git/tags/$TAG_OBJECT_SHA" --jq '.object.sha'
+          )"
+          TAG_VERIFIED="$(
+            gh api "repos/$GITHUB_REPOSITORY/git/tags/$TAG_OBJECT_SHA" --jq '.verification.verified'
+          )"
+          if [[ "$TAG_TARGET_SHA" != "$GITHUB_SHA" || "$TAG_VERIFIED" != true ]]; then
+            echo "::error::Tag $TAG moved or lost its verified signature"
+            exit 1
+          fi
+          gh release create "$TAG" --verify-tag --generate-notes

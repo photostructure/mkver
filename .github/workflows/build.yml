@@ -1,4 +1,4 @@
-name: Build & Release
+name: Build & Prepare Release
 
 on:
   push:
@@ -8,12 +8,25 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version type (patch, minor, major, or specific version)"
-        required: false
-        type: string
+        description: Version bump
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:
   build:
+    name: Test Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     defaults:
@@ -27,35 +40,62 @@ jobs:
         node-version: [22, 24, 26]
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Checkout the repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
       - run: npm run make
       - run: npm run lint
       - run: npm test
+      - name: Verify the tested source stayed unchanged
+        run: git diff --exit-code
 
-  publish:
+  release:
+    name: Create signed release commit and tag
     runs-on: ubuntu-24.04
-    needs: [build]
+    needs: build
     if: ${{ github.event_name == 'workflow_dispatch' }}
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    concurrency:
+      group: mkver-release
+      cancel-in-progress: false
     permissions:
-      id-token: write # Required for OIDC trusted publishing
-      contents: write # Required to push tags and create releases
+      contents: write # Push the release commit and signed tag.
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Checkout the tested commit
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
-          fetch-depth: 0 # Need full history for version tags
-          lfs: true
+          fetch-depth: 0
+          # This isolated job must push the release commit and tag. It installs
+          # no dependencies and has no npm publishing authority.
+          persist-credentials: true
 
-      # setup-node with registry-url is required for OIDC trusted publishing
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      - name: Verify the release source
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/$DEFAULT_BRANCH" ]]; then
+            echo "::error::Releases must be dispatched from $DEFAULT_BRANCH, not $GITHUB_REF"
+            exit 1
+          fi
+          git fetch --no-tags origin "$DEFAULT_BRANCH"
+          if [[ "$(git rev-parse "origin/$DEFAULT_BRANCH")" != "$GITHUB_SHA" ]]; then
+            echo "::error::$DEFAULT_BRANCH moved after this release run started; run it again"
+            exit 1
+          fi
+
+      - name: Install the release Node.js toolchain
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 22
-          cache: "npm"
-          registry-url: "https://registry.npmjs.org"
+          node-version: 24.18.1
+          package-manager-cache: false
 
       - name: Set up SSH signing
         uses: photostructure/git-ssh-signing-action@eb48d0517cdf304a5fde87d539702a74ebc01e09 # v2.0.0
@@ -64,35 +104,68 @@ jobs:
           git-user-name: ${{ secrets.GIT_USER_NAME }}
           git-user-email: ${{ secrets.GIT_USER_EMAIL }}
 
-      - name: Update npm to latest to get --provenance support
-        run: |
-          npm install -g npm@latest
-          npm --version
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build the publishable artifact
-        run: npm run make
-
-      - name: Bump version and create tag
-        run: |
-          VERSION_ARG="${{ github.event.inputs.version }}"
-          if [ -z "$VERSION_ARG" ]; then
-            VERSION_ARG="patch"
-          fi
-          npm version "$VERSION_ARG" --sign-git-tag -m "chore(release): %s"
-          echo "NEW_VERSION=$(npm pkg get version | tr -d '\"')" >> $GITHUB_ENV
-
-      - name: Push changes and tags
-        run: |
-          git push origin main
-          git push origin --tags
-
-      - name: Create GitHub Release
-        run: gh release create "v${{ env.NEW_VERSION }}" --generate-notes
+      - name: Bump the package version
+        id: version
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUMP: ${{ inputs.version }}
+        run: |
+          case "$BUMP" in
+            patch|minor|major) ;;
+            *)
+              echo "::error::Unsupported version bump: $BUMP"
+              exit 1
+              ;;
+          esac
 
-      - name: Publish to npm with OIDC
-        run: npm publish --provenance
+          npm version "$BUMP" --no-git-tag-version --ignore-scripts
+
+          if ! git diff --quiet -- . \
+            ':(exclude)package.json' \
+            ':(exclude)package-lock.json'; then
+            echo "::error::The version bump changed unexpected files"
+            git diff --name-only
+            exit 1
+          fi
+
+          VERSION="$(node -p "require('./package.json').version")"
+          node -e '
+            const pkg = require("./package.json")
+            const lock = require("./package-lock.json")
+            if (lock.version !== pkg.version || lock.packages[""].version !== pkg.version) {
+              throw new Error("package.json and package-lock.json versions do not match")
+            }
+          '
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create the signed release commit and tag
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git add package.json package-lock.json
+          git commit -m "chore(release): $VERSION"
+          git tag -m "Release $VERSION" "$TAG"
+
+      - name: Push the commit and tag atomically
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git push --atomic origin HEAD:main "refs/tags/$TAG"
+
+  dispatch:
+    name: Start tag-bound publishing
+    runs-on: ubuntu-24.04
+    needs: release
+    permissions:
+      actions: write # Dispatch publish.yaml at the newly created tag.
+    steps:
+      # GITHUB_TOKEN-created tag events do not start another workflow, so
+      # explicitly dispatch the publisher at the exact signed tag ref. Keeping
+      # this in a separate job makes a transient dispatch failure rerunnable
+      # without repeating the version bump or tag push.
+      - name: Start the tag-bound publishing workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release.outputs.tag }}
+        run: gh workflow run publish.yaml --repo "$GITHUB_REPOSITORY" --ref "$TAG"
