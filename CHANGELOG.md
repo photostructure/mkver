@@ -15,6 +15,13 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v5.0.2
+
+- 📦 Replace direct npm publishing with a least-privilege, tag-bound release flow that verifies signed commits and tags, retests and packs the exact release source, stages the tarball through npm Trusted Publishing, and creates an immutable GitHub release
+- 📦 Isolate publisher dispatch from release signing so transient dispatch failures can be retried without recreating the release commit or tag
+- 📦 Add workflow auditing and tighten GitHub Actions token permissions, checkout credentials, dependency installation, and concurrency controls
+- 📦 Add 14-day cooldowns for npm-check-updates and pinact, and apply the same minimum age when npm resolves dependencies
+
 ## v5.0.1
 
 - 📦 Upgrade dev toolchain to TypeScript 6.0 and ESLint 10, and refresh dev dependencies
