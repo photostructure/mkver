@@ -15,6 +15,10 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
+## v5.0.3
+
+- 🐞 Pass the staged package tarball as an explicit local path so npm does not parse it as GitHub shorthand
+
 ## v5.0.2
 
 - 📦 Replace direct npm publishing with a least-privilege, tag-bound release flow that verifies signed commits and tags, retests and packs the exact release source, stages the tarball through npm Trusted Publishing, and creates an immutable GitHub release

@@ -182,7 +182,9 @@ jobs:
             echo "::error::Expected exactly one package tarball, found ${#TARBALLS[@]}"
             exit 1
           fi
-          npm stage publish "${TARBALLS[0]}" --ignore-scripts
+          # npm parses "directory/package.tgz" as hosted Git shorthand. Prefix
+          # the relative path so npm treats the artifact as a local tarball.
+          npm stage publish "./${TARBALLS[0]}" --ignore-scripts
 
   github-release:
     name: Create immutable GitHub release
