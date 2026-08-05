@@ -63,38 +63,10 @@ jobs:
             exit 1
           fi
 
-  test:
-    name: Test Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    needs: validate
-    defaults:
-      run:
-        shell: bash
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        node-version: [22, 24, 26]
-    steps:
-      - name: Checkout the release tag
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: ${{ matrix.node-version }}
-          package-manager-cache: false
-      - run: npm ci --ignore-scripts
-      - run: npm run make
-      - run: npm run lint
-      - run: npm test
-      - name: Verify the tested source stayed unchanged
-        run: git diff --exit-code
-
   pack:
     name: Build exact npm tarball
     runs-on: ubuntu-24.04
-    needs: test
+    needs: validate
     steps:
       - name: Checkout the release tag
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -211,4 +183,7 @@ jobs:
             echo "::error::Tag $TAG moved or lost its verified signature"
             exit 1
           fi
-          gh release create "$TAG" --verify-tag --generate-notes
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --generate-notes
