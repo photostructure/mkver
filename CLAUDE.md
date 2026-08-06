@@ -18,6 +18,9 @@ mkver is a Node.js CLI tool that generates version metadata files from package.j
 ## Development Commands
 
 ```bash
+# Everything that should pass before a release: update deps, fmt, lint, test
+make preflight   # or: npm run preflight
+
 # Build the project (compiles TypeScript and makes executable)
 npm run make
 

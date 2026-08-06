@@ -15,7 +15,7 @@
     "update:ncu": "npm-check-updates --upgrade --install always",
     "install:pinact": "go install github.com/suzuki-shunsuke/pinact/v3/cmd/pinact@latest",
     "update:pinact": "pinact run -u",
-    "all": "run-s update fmt lint test",
+    "preflight": "run-s update fmt lint test",
     "docs:build": "typedoc"
   },
   "bin": {
