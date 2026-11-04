@@ -8,3 +8,5 @@ appveyor.yml
 
 # no typescript configs
 ts*.json
+# maintainer docs
+RELEASE.md

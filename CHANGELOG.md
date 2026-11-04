@@ -15,7 +15,9 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
-## [Unreleased]
+## [Unreleased (patch)]
+
+- 📦 GitHub releases now wait for the npm package to be approved, and carry these release notes.
 
 ## [5.0.3] - 2026-08-05
 
