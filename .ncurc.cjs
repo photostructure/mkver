@@ -2,4 +2,5 @@
 module.exports = {
   removeRange: true,
   cooldown: 14,
+  peer: true,
 };
