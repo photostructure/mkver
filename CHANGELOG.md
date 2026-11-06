@@ -15,7 +15,9 @@ This module follows semver.
 - 🐞 Backwards-compatible bug fixes
 - 📦 Minor packaging changes
 
-## [Unreleased (patch)]
+## [Unreleased]
+
+## [5.0.5] - 2026-11-06
 
 - 📦 GitHub releases now wait for the npm package to be approved, and carry these release notes.
 
@@ -210,6 +212,7 @@ This module follows semver.
 
 - 🎉 First release
 
+[5.0.5]: https://github.com/photostructure/mkver/releases/tag/v5.0.5
 [5.0.3]: https://github.com/photostructure/mkver/releases/tag/v5.0.3
 [5.0.2]: https://github.com/photostructure/mkver/releases/tag/v5.0.2
 [5.0.1]: https://github.com/photostructure/mkver/releases/tag/v5.0.1
